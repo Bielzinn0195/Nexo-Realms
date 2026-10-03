@@ -148,7 +148,7 @@ export class ArenaScene extends Phaser.Scene {
       }
       const screenX = this.scale.width / 2 + player.x;
       view.setPosition(screenX, 520);
-      view.setFlipX(player.facing < 0);
+      view.setScale(player.facing < 0 ? -1 : 1, 1);
       const label = this.labels.get(sessionId);
       label?.setPosition(screenX, 450).setText(player.class.toUpperCase() + " • " + Math.max(0, Math.round(player.hp)) + "/" + player.maxHp);
       if (sessionId === this.room.sessionId) this.localX = player.x;
