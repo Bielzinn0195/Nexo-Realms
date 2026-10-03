@@ -13,6 +13,7 @@ import { QuestSystem } from "../systems/QuestSystem";
 import { SaveSystem } from "../systems/SaveSystem";
 import { SkillTreeSystem } from "../systems/SkillTreeSystem";
 import { SkillTreePanel } from "../ui/SkillTreePanel";
+import { QuestPanel } from "../ui/QuestPanel";
 
 export class WorldScene extends Phaser.Scene {
   private gameClass: GameClass = "cavaleiro";
@@ -25,6 +26,7 @@ export class WorldScene extends Phaser.Scene {
   private skillTreePanel!: SkillTreePanel;
   private hud!: HUD;
   private inventoryPanel!: InventoryPanel;
+  private questPanel!: QuestPanel;
   private progression = new ProgressionSystem();
   private quests = new QuestSystem();
   private saves = new SaveSystem();
@@ -97,6 +99,7 @@ export class WorldScene extends Phaser.Scene {
     this.skillTree = new SkillTreeSystem(this.gameClass);
     this.skillTree.restore(this.loadedSave?.skillLevels, this.progression.state.skillPoints);
     this.skillTreePanel = new SkillTreePanel(this, this.skillTree);
+    this.questPanel = new QuestPanel(this, this.quests, (id) => this.claimQuest(id));
 
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.keys = this.input.keyboard!.addKeys("W,A,S,D,J,K,ONE,TWO,THREE,I,M,F5") as Record<string, Phaser.Input.Keyboard.Key>;
@@ -110,6 +113,7 @@ export class WorldScene extends Phaser.Scene {
     this.input.keyboard!.on("keydown-M", () => this.scene.launch("ModeMenuScene", { gameClass: this.gameClass }));
     this.input.keyboard!.on("keydown-F5", () => this.saveGame());
     this.input.keyboard!.on("keydown-T", () => this.skillTreePanel.toggle());
+    this.input.keyboard!.on("keydown-Q", () => this.questPanel.toggle());
 
     this.hud.setActions(() => this.attack(), () => this.dash(), (index) => this.skill(index), () => this.inventoryPanel.toggle());
 
@@ -311,6 +315,16 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
+  private claimQuest(id: string) {
+    const reward = this.quests.claim(id);
+    if (!reward) return;
+    this.inventory.state.gold += reward.gold;
+    const levels = this.progression.addXp(reward.xp);
+    if (levels > 0) this.skillTree.points = this.progression.state.skillPoints;
+    this.showBanner("MISSÃO CONCLUÍDA • +" + reward.gold + " OURO");
+    this.saveGame();
+  }
+
   private spawnBoss(index: number) {
     if (this.boss || index < 0 || index >= BOSSES.length) return;
     const definition = BOSSES[index];
@@ -407,10 +421,10 @@ export class WorldScene extends Phaser.Scene {
 
   private showGuide() {
     const message = this.inputMode === "touch"
-      ? "Arraste o joystick para andar • toque ATK/DASH/S1/S2/S3 • BAG abre o inventário."
+      ? "Arraste o joystick • ATK/DASH/S1/S2/S3 • BAG inventário • Q missões."
       : this.inputMode === "controller"
-        ? "Controle detectado • X ataque • A dash • LB/RB/RT habilidades • menu pausa."
-        : "J atacar • K dash • 1/2/3 habilidades • I inventário • M modos • F5 salvar";
+        ? "Controle detectado • X ataque • A dash • LB/RB/RT habilidades • Q missões."
+        : "J atacar • K dash • 1/2/3 habilidades • I inventário • Q missões • M modos • F5 salvar";
     const guide = this.add.text(16, this.scale.height - 60, message, { fontFamily: "Arial", fontSize: "12px", color: "#8f98aa" }).setScrollFactor(0);
     this.time.delayedCall(7000, () => guide.destroy());
   }
