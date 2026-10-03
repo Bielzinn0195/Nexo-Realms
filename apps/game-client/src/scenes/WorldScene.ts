@@ -414,7 +414,7 @@ export class WorldScene extends Phaser.Scene {
     });
     graphics.fillStyle(0x141a20).fillRect(0, 730, 4300, 170);
     this.floor = this.physics.add.staticImage(2150, 730, "floor").setDisplaySize(4300, 340).setVisible(false);
-    this.floor?.body.setSize(4300, 340, true);
+    this.floor?.body?.setSize(4300, 340, true);
     this.add.text(430, 570, "Siga a estrada. O reino começa aqui.", { fontFamily: "Arial", fontSize: "20px", color: "#d3dccf" });
     [900, 1500, 2200, 2900, 3500].forEach((x) => this.add.rectangle(x, 575, 8, 310, 0x8c6b40, 0.6));
   }
