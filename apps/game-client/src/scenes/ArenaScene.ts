@@ -130,12 +130,14 @@ export class ArenaScene extends Phaser.Scene {
       });
       this.room.onMessage("match-end", (message: { winnerId: string; reason: string; rating?: number }) => {
         const won = message.winnerId === this.room.sessionId;
-        if (typeof message.rating === "number" && this.queueType === "ranked") {
-          this.rating = Math.max(0, Math.min(5000, Math.round(message.rating)));
-          localStorage.setItem("nexo-arena-rating", String(this.rating));
-        }
         if (this.queueType === "ranked") {
-          this.rating = applyArenaResult(this.rating, won, 1000);
+          if (typeof message.rating === "number" && Number.isFinite(message.rating)) {
+            // The authoritative server already calculated the result. Never apply ELO twice.
+            this.rating = Math.max(0, Math.min(5000, Math.round(message.rating)));
+          } else {
+            // Local fallback is only for servers that do not return the authoritative rating.
+            this.rating = applyArenaResult(this.rating, won, 1000);
+          }
           localStorage.setItem("nexo-arena-rating", String(this.rating));
         }
         this.status?.setText((won ? "VITÓRIA" : "DERROTA") + " • " + message.reason + "\nRating: " + this.rating + " • " + getTier(this.rating).name);
