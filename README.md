@@ -28,7 +28,7 @@ Original dark-fantasy 2D side-scrolling action RPG. The combat feel uses Shadow 
 - Boss Rush
 - Arena 1v1 client + Colyseus room server
 - Arena rating tiers
-- Touch/keyboard/controller detection foundation
+- Touch/keyboard/controller input paths with contextual HUD guidance
 
 ## Reference notes
 
