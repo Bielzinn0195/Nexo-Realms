@@ -53,7 +53,7 @@ export class QuestPanel {
       }
     });
 
-    this.container.add(this.scene.add.text(this.scene.scale.width / 2, this.scene.scale.height / 2 + height / 2 - 22, "Q para fechar • complete objetivos durante a exploração", {
+    this.container!.add(this.scene.add.text(this.scene.scale.width / 2, this.scene.scale.height / 2 + height / 2 - 22, "Q para fechar • complete objetivos durante a exploração", {
       fontFamily: "Arial", fontSize: "11px", color: "#727e94",
     }).setOrigin(0.5));
   }
