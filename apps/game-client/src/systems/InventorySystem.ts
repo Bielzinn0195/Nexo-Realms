@@ -30,6 +30,6 @@ export class InventorySystem {
   return result;
  }
  gainEquipmentExperience(amount:number){if(!Number.isFinite(amount)||amount<=0)return;for(const id of Object.values(this.state.equipment)){if(!id)continue;const item=this.state.items.find(i=>i.instanceId===id);if(item)item.experience=(item.experience??0)+Math.max(0,amount);}}
- getItemLevel(item:InventoryItem){return Math.max(1,1+Math.floor((item.experience??0)/100));}
+ getItemLevel(item:InventoryItem){const xp=Math.max(0,Math.min(1000000,Number(item.experience??0)));return Math.max(1,1+Math.floor(xp/100));}
  getEquippedItem(slot:EquipmentSlot):InventoryItem|undefined{const id=this.state.equipment[slot];return this.state.items.find(i=>i.instanceId===id);}
 }
