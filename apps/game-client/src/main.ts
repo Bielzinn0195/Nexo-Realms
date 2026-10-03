@@ -9,20 +9,25 @@ import { TowerScene } from "./scenes/TowerScene";
 import { BossRushScene } from "./scenes/BossRushScene";
 import { ArenaScene } from "./scenes/ArenaScene";
 
-export function detectInputMode(): "touch"|"keyboard"|"controller" {
-  const hasTouch=navigator.maxTouchPoints>0 && window.matchMedia("(pointer: coarse)").matches;
-  const hasController=navigator.getGamepads?.().some(Boolean) ?? false;
-  if(hasTouch)return "touch";
-  if(hasController)return "controller";
+export function detectInputMode(): "touch" | "keyboard" | "controller" {
+  const hasController = navigator.getGamepads?.().some((pad) => Boolean(pad?.connected)) ?? false;
+  const hasTouch = navigator.maxTouchPoints > 0 && window.matchMedia("(pointer: coarse)").matches;
+  if (hasController) return "controller";
+  if (hasTouch) return "touch";
   return "keyboard";
 }
 
-const config:Phaser.Types.Core.GameConfig={
- type:Phaser.AUTO,width:1280,height:720,backgroundColor:"#080a0f",
- parent:"game",physics:{default:"arcade",arcade:{gravity:{x:0,y:900},debug:false}},
- scale:{mode:Phaser.Scale.RESIZE,autoCenter:Phaser.Scale.CENTER_BOTH},
- scene:[BootScene,SaveSlotsScene,CharacterSelectScene,WorldScene,ModeMenuScene,TowerScene,BossRushScene,ArenaScene]
+const config: Phaser.Types.Core.GameConfig = {
+  type: Phaser.AUTO,
+  width: 1280,
+  height: 720,
+  backgroundColor: "#080a0f",
+  parent: "game",
+  input: { gamepad: true },
+  physics: { default: "arcade", arcade: { gravity: { x: 0, y: 900 }, debug: false } },
+  scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH },
+  scene: [BootScene, SaveSlotsScene, CharacterSelectScene, WorldScene, ModeMenuScene, TowerScene, BossRushScene, ArenaScene],
 };
 
-const game=new Phaser.Game(config);
+const game = new Phaser.Game(config);
 export { game };
