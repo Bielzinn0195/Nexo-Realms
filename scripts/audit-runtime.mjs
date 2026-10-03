@@ -11,4 +11,4 @@ const checks=[
  ["world-areas",read("apps/game-client/src/data/world.ts"),["forest-of-beginnings","central-city","forgotten-mines","drowned-swamp","ancient-ruins","final-fortress"]],
 ];
 for(const [name,content,tokens] of checks)for(const token of tokens)if(!content.includes(token))throw new Error(name+" missing "+token);
-console.log("NEXO REALMS runtime contract audit passed.");
+const clientFiles=["apps/game-client/src/systems/AuthService.ts","apps/game-client/src/systems/CloudSaveService.ts","apps/game-client/src/scenes/ArenaScene.ts","apps/game-client/src/scenes/BossRushScene.ts"];\nfor(const file of clientFiles){const content=read(file);if(content.includes("SUPABASE_SECRET_KEY")||content.includes("SUPABASE_SERVICE_ROLE_KEY"))throw new Error("Secret Supabase key reference in client: "+file);}\nconsole.log("NEXO REALMS runtime contract audit passed.");
