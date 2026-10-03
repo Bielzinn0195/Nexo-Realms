@@ -41,7 +41,8 @@ export class SaveSystem {
     try {
       const parsed = JSON.parse(raw) as Partial<RuntimeSave>;
       if (!parsed.gameClass || !parsed.inventory) return undefined;
-      const normalizedInventory = { ...parsed.inventory, items: Array.isArray(parsed.inventory.items) ? parsed.inventory.items.map((item:any)=>({ ...item, quantity:Math.max(1,Math.floor(Number(item.quantity??1))), upgradeLevel:Math.max(0,Math.floor(Number(item.upgradeLevel??0))), experience:Math.max(0,Number(item.experience??0)) })) : [] };\n      const safeClass = parsed.gameClass === "arqueiro" || parsed.gameClass === "mago" || parsed.gameClass === "cavaleiro" ? parsed.gameClass : "cavaleiro";
+      const normalizedInventory = { ...parsed.inventory, items: Array.isArray(parsed.inventory.items) ? parsed.inventory.items.map((item:any)=>({ ...item, quantity:Math.max(1,Math.floor(Number(item.quantity??1))), upgradeLevel:Math.max(0,Math.floor(Number(item.upgradeLevel??0))), experience:Math.max(0,Number(item.experience??0)) })) : [] };
+      const safeClass = parsed.gameClass === "arqueiro" || parsed.gameClass === "mago" || parsed.gameClass === "cavaleiro" ? parsed.gameClass : "cavaleiro";
       return {
         version: parsed.version ?? 1,
         slot,
