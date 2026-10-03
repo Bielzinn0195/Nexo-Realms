@@ -45,6 +45,7 @@ export class WorldScene extends Phaser.Scene {
   private loadedSave?: ReturnType<SaveSystem["load"]>;
   private controllerPrevious: boolean[] = [];
   private controllerAxisX = 0;
+  private defeatedBosses: string[] = [];
 
   constructor() {
     super("WorldScene");
@@ -82,6 +83,7 @@ export class WorldScene extends Phaser.Scene {
       this.progression.state.xp = this.loadedSave.experience;
       this.progression.state.skillPoints = this.loadedSave.skillPoints;
       this.currentRegion = REGIONS.find((region) => region.id === this.loadedSave?.areaId) ?? REGIONS[0];
+      this.defeatedBosses = [...this.loadedSave.defeatedBosses];
 
       this.quests.quests.forEach((quest) => {
         const saved = this.loadedSave?.quests.find((item) => item.id === quest.id);
@@ -358,7 +360,7 @@ export class WorldScene extends Phaser.Scene {
     this.inventory.state.gold += 500;
     this.inventory.addItem(definition.reward === "root-heart" ? "ember-heart" : "arcane-ring");
     this.progression.addXp(500);
-    this.loadedSave?.defeatedBosses.push(definition.id);
+    if (!this.defeatedBosses.includes(definition.id)) this.defeatedBosses.push(definition.id);
     this.showBanner("BOSS DERROTADO • " + definition.name);
     this.boss.destroy();
     this.boss = undefined;
@@ -443,7 +445,7 @@ export class WorldScene extends Phaser.Scene {
       inventory: this.inventory.state,
       areaId: this.currentRegion.id,
       checkpointId: "world-auto",
-      defeatedBosses: this.loadedSave?.defeatedBosses ?? [],
+      defeatedBosses: [...this.defeatedBosses],
       discoveredAreas: REGIONS.filter((region) => region.start <= this.player.x).map((region) => region.id),
       quests: this.quests.quests.map((quest) => ({
         id: quest.id,
