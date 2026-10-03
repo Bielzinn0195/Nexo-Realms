@@ -44,7 +44,7 @@ export class WorldScene extends Phaser.Scene {
   this.player.setTexture("hero-"+this.gameClass+"-"+(this.combat.state==="attack"?"attack-1":this.combat.state==="skill"?"skill-1":this.combat.state==="dash"?"dash":this.combat.state==="hurt"?"hurt":"idle"));
   this.hud.update(stats.hp,stats.hp,stats.resource,stats.resource);
   this.enemies.forEach(e=>e.update(this.player,time));
-  this.handleEnemyDamage(time);this.updateRegion();this.updateBoss();
+  this.handleEnemyDamage(time);this.cleanupDead();this.updateRegion();this.updateBoss();
   if(time-this.saveTimer>30000){this.saveTimer=time;this.saveGame();}
  }
  private attack(){const a=this.combat.attack(this.time.now);if(!a)return;this.hitTargets(a.range,a.damageMultiplier);}
@@ -68,7 +68,7 @@ export class WorldScene extends Phaser.Scene {
   this.add.text(this.boss.x,this.boss.y-150,def.name,{fontFamily:"Arial",fontSize:"22px",color:"#fff",fontStyle:"bold"}).setOrigin(.5).setDepth(8);
   this.showBanner("BOSS: "+def.title);
  }
- private updateBoss(){if(!this.boss)return;const def=BOSSES.find(b=>b.hp===this.bossMax)||BOSSES[0];const ratio=this.bossHp/this.bossMax;const phase=def.phases.findIndex(p=>ratio<=p.threshold);if(phase>=0&&phase!==this.bossPhase){this.bossPhase=phase;this.showBanner(def.phases[phase].name);this.boss.setScale(1+phase*.08);}}
+ private updateBoss(){if(!this.boss)return;const def=BOSSES.find(b=>b.hp===this.bossMax)||BOSSES[0];const ratio=this.bossHp/this.bossMax;const phase=Math.max(0,def.phases.findIndex((p,i)=>ratio<=p.threshold && (i===def.phases.length-1 || ratio>def.phases[i+1].threshold)));if(phase>=0&&phase!==this.bossPhase){this.bossPhase=phase;this.showBanner(def.phases[phase].name);this.boss.setScale(1+phase*.08);}}
  private defeatBoss(){if(!this.boss)return;this.inventory.state.gold+=500;this.inventory.addItem("ember-heart");this.progression.addXp(500);this.showBanner("BOSS DERROTADO");this.boss.destroy();this.boss=undefined;this.bossHp=0;this.saveGame();}
  private flashHit(target:Phaser.GameObjects.Rectangle){target.setFillStyle(0xffffff);this.time.delayedCall(80,()=>target.setFillStyle(0x4d2b5d));}
  private buildWorld(){
@@ -78,7 +78,6 @@ export class WorldScene extends Phaser.Scene {
   this.floor=this.physics.add.staticImage(2150,730,"floor").setDisplaySize(4300,340).setVisible(false);
   this.add.text(430,570,"Siga a estrada. O reino começa aqui.",{fontFamily:"Arial",fontSize:"20px",color:"#d3dccf"});
   [900,1500,2200,2900,3500].forEach(x=>this.add.rectangle(x,575,8,310,0x8c6b40,.6));
-  this.spawnWave(0);
  }
  private showRegion(region:typeof REGIONS[number]){this.regionLabel?.destroy();this.regionLabel=this.add.text(this.scale.width/2,90,region.name+"\\n"+region.subtitle,{fontFamily:"Arial",fontSize:"24px",color:"#fff",align:"center",fontStyle:"bold"}).setOrigin(.5).setScrollFactor(0).setAlpha(0);this.tweens.add({targets:this.regionLabel,alpha:1,duration:350,yoyo:true,hold:1700});}
  private showBanner(text:string){const t=this.add.text(this.scale.width/2,145,text,{fontFamily:"Arial",fontSize:"28px",color:"#fff",fontStyle:"bold",stroke:"#000",strokeThickness:6}).setOrigin(.5).setScrollFactor(0);this.tweens.add({targets:t,y:110,alpha:0,duration:1800,onComplete:()=>t.destroy()});}
