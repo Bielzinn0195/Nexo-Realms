@@ -1,0 +1,4 @@
+export type Tier="bronze"|"prata"|"ouro"|"platina"|"diamante"|"eclipse";
+export const tiers:Array<{name:Tier,min:number,max:number}>=[{name:"bronze",min:0,max:999},{name:"prata",min:1000,max:1599},{name:"ouro",min:1600,max:2199},{name:"platina",min:2200,max:2899},{name:"diamante",min:2900,max:3699},{name:"eclipse",min:3700,max:Infinity}];
+export function tierFor(rating:number){return tiers.find(t=>rating>=t.min&&rating<=t.max)?.name??"bronze";}
+export function elo(rating:number,opponent:number,win:boolean){const expected=1/(1+Math.pow(10,(opponent-rating)/400));return Math.max(0,Math.round(rating+32*((win?1:0)-expected)));}
