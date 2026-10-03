@@ -18,10 +18,10 @@ export class HUD {
 
   constructor(private readonly scene: Phaser.Scene, private readonly inputMode: InputMode, gameClass: GameClass) {
     const cfg = CLASS_CONFIG[gameClass];
-    this.hp = scene.add.graphics().setScrollFactor(0);
-    this.resource = scene.add.graphics().setScrollFactor(0);
+    this.hp = scene.add.graphics().setScrollFactor(0).setDepth(1000);
+    this.resource = scene.add.graphics().setScrollFactor(0).setDepth(1000);
 
-    scene.add.text(24, 18, cfg.name.toUpperCase(), { fontFamily: "Arial", fontSize: "18px", color: "#fff", fontStyle: "bold" }).setScrollFactor(0);
+    scene.add.text(24, 18, cfg.name.toUpperCase(), { fontFamily: "Arial", fontSize: "18px", color: "#fff", fontStyle: "bold" }).setScrollFactor(0).setDepth(1000);
     scene.add.text(24, 42, "HP", { fontFamily: "Arial", fontSize: "11px", color: "#d8dbe5" }).setScrollFactor(0);
     scene.add.text(24, 70, cfg.resourceName.toUpperCase(), { fontFamily: "Arial", fontSize: "11px", color: "#d8dbe5" }).setScrollFactor(0);
 
