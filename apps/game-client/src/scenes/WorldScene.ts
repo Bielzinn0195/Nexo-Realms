@@ -24,7 +24,7 @@ export class WorldScene extends Phaser.Scene {
  create(){
   const cfg=CLASS_CONFIG[this.gameClass];this.physics.world.setBounds(0,0,4300,900);this.cameras.main.setBounds(0,0,4300,900);
   this.buildWorld();this.player=this.physics.add.sprite(360,620,"hero-"+this.gameClass+"-idle").setDisplaySize(80,112).setCollideWorldBounds(true);this.player.setDepth(5);
-  this.inventory=new InventorySystem(this.gameClass);this.combat=new CombatSystem(this,this.player,this.gameClass,this.inventory);this.hud=new HUD(this,this.inputMode,this.gameClass);
+  this.inventory=new InventorySystem(this.gameClass);if(this.scene.settings.data?.load){Object.assign(this.inventory.state,this.scene.settings.data.load.inventory);this.progression.state.level=this.scene.settings.data.load.level;this.progression.state.xp=this.scene.settings.data.load.experience;this.currentRegion=REGIONS.find(r=>r.id===this.scene.settings.data.load.areaId)??REGIONS[0];}this.combat=new CombatSystem(this,this.player,this.gameClass,this.inventory);this.hud=new HUD(this,this.inputMode,this.gameClass);
   this.inventoryPanel=new InventoryPanel(this,this.inventory);
   this.cursors=this.input.keyboard!.createCursorKeys();this.keys=this.input.keyboard!.addKeys("W,A,S,D,J,K,ONE,TWO,THREE,I,M,F5") as Record<string,Phaser.Input.Keyboard.Key>;
   this.input.keyboard!.on("keydown-I",()=>this.inventoryPanel.toggle());
