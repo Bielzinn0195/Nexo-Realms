@@ -6,7 +6,7 @@ O jogo foi preparado para funcionar em modo local/convidado sem keys. Para ativa
 Arquivo: apps/game-client/.env.local
 
 VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
+VITE_SUPABASE_PUBLISHABLE_KEY=\n\n# Legacy alias if your project still uses it:\nVITE_SUPABASE_PUBLISHABLE_KEY=\nSUPABASE_SECRET_KEY=\n\n# Legacy aliases supported during migration:\nSUPABASE_ANON_KEY=
 VITE_MULTIPLAYER_URL=
 
 ## Multiplayer
