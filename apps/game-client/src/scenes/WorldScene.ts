@@ -33,7 +33,7 @@ export class WorldScene extends Phaser.Scene {
  private createWorld(){
   const g=this.add.graphics();g.fillStyle(0x080d0d).fillRect(0,0,3600,900);g.fillStyle(0x18261b).fillRect(0,500,3600,400);g.fillStyle(0x253a27).fillRect(0,710,3600,190);g.fillStyle(0x10161b).fillRect(0,760,3600,140);
   for(let x=0;x<3600;x+=180){g.fillStyle(0x29442d);g.fillTriangle(x+80,500,x+20,700,x+140,700);}
-  this.floor=this.physics.add.staticImage(1800,760);this.floor.setDisplaySize(3600,280);this.floor.setVisible(false);
+  this.floor=this.physics.add.staticImage(1800,760,"floor");this.floor.setDisplaySize(3600,280);this.floor.setVisible(false);
   this.add.text(120,620,"Floresta do Começo",{fontFamily:"Arial",fontSize:"30px",color:"#d7e4d5",fontStyle:"bold"});
   
  }
