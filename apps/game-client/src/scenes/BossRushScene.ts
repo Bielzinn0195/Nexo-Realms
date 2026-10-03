@@ -1,7 +1,8 @@
 import Phaser from "phaser";
 import { Client } from "colyseus.js";
 import { BOSSES } from "../data/bosses";
-import type { GameClass } from "@nexo-realms/shared";\nimport {AuthService} from "../systems/AuthService";
+import type { GameClass } from "@nexo-realms/shared";
+import {AuthService} from "../systems/AuthService";
 
 export class BossRushScene extends Phaser.Scene {
   private index = 0;
@@ -13,7 +14,8 @@ export class BossRushScene extends Phaser.Scene {
   private status?: Phaser.GameObjects.Text;
   private room?: any;
   private online = false;
-  private gameClass: GameClass = "cavaleiro";\n  private auth=new AuthService();
+  private gameClass: GameClass = "cavaleiro";
+  private auth=new AuthService();
 
   constructor() {
     super("BossRushScene");
@@ -53,7 +55,9 @@ export class BossRushScene extends Phaser.Scene {
     const elapsed = this.online && this.room?.state?.elapsed ? this.room.state.elapsed : this.time.now - this.startedAt;
     const currentBoss = BOSSES[this.index];
     if (currentBoss && this.label) {
-      this.label.setText(currentBoss.name + "\nHP " + Math.max(0, this.hp) + "/" + currentBoss.hp + "\nTempo " + Math.floor(elapsed / 1000) + "s • Score " + this.score);
+      this.label.setText(currentBoss.name + "
+HP " + Math.max(0, this.hp) + "/" + currentBoss.hp + "
+Tempo " + Math.floor(elapsed / 1000) + "s • Score " + this.score);
     }
   }
 
