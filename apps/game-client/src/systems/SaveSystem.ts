@@ -41,7 +41,7 @@ export class SaveSystem {
     try {
       const parsed = JSON.parse(raw) as Partial<RuntimeSave>;
       if (!parsed.gameClass || !parsed.inventory) return undefined;
-      const safeClass = parsed.gameClass === "arqueiro" || parsed.gameClass === "mago" || parsed.gameClass === "cavaleiro" ? parsed.gameClass : "cavaleiro";
+      const normalizedInventory = { ...parsed.inventory, items: Array.isArray(parsed.inventory.items) ? parsed.inventory.items.map((item:any)=>({ ...item, quantity:Math.max(1,Math.floor(Number(item.quantity??1))), upgradeLevel:Math.max(0,Math.floor(Number(item.upgradeLevel??0))), experience:Math.max(0,Number(item.experience??0)) })) : [] };\n      const safeClass = parsed.gameClass === "arqueiro" || parsed.gameClass === "mago" || parsed.gameClass === "cavaleiro" ? parsed.gameClass : "cavaleiro";
       return {
         version: parsed.version ?? 1,
         slot,
@@ -51,7 +51,7 @@ export class SaveSystem {
         experience: Math.max(0, parsed.experience ?? 0),
         skillPoints: Math.max(0, parsed.skillPoints ?? 0),
         gold: Math.max(0, parsed.gold ?? parsed.inventory.gold ?? 0),
-        inventory: { ...parsed.inventory, capacity: Math.max(1, Math.min(200, Number(parsed.inventory.capacity ?? 36))), gold: Math.max(0, Number(parsed.inventory.gold ?? 0)), gems: Math.max(0, Number(parsed.inventory.gems ?? 0)) },
+        inventory: { ...normalizedInventory, capacity: Math.max(1, Math.min(200, Number(parsed.inventory.capacity ?? 36))), gold: Math.max(0, Number(parsed.inventory.gold ?? 0)), gems: Math.max(0, Number(parsed.inventory.gems ?? 0)) },
         areaId: parsed.areaId ?? "forest-of-beginnings",
         checkpointId: parsed.checkpointId ?? "forest-gate",
         defeatedBosses: parsed.defeatedBosses ?? [],
