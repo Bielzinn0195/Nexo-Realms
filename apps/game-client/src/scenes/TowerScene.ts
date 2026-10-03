@@ -16,6 +16,7 @@ export class TowerScene extends Phaser.Scene {
   private dashAt = 0;
   private keyLeft?: Phaser.Input.Keyboard.Key;
   private keyRight?: Phaser.Input.Keyboard.Key;
+  private platform?: Phaser.Physics.Arcade.Image;
 
   constructor() {
     super("TowerScene");
@@ -40,7 +41,11 @@ export class TowerScene extends Phaser.Scene {
 
     this.add.rectangle(this.scale.width / 2, 390, 1120, 440, 0x111520).setStrokeStyle(2, 0x313a4e);
     this.player = this.physics.add.sprite(300, 520, "hero-" + data.gameClass + "-idle").setDisplaySize(70, 98).setCollideWorldBounds(true);
+    this.platform = this.physics.add.staticImage(this.scale.width / 2, 590, "floor").setDisplaySize(1120, 260).setVisible(false);
+    this.platform?.body?.setSize(1120, 260, true);
+    this.physics.add.collider(this.player, this.platform);
     this.enemy = new EnemyActor(this, ENEMY_DEFINITIONS.brute, 900, 520);
+    this.physics.add.collider(this.enemy.sprite, this.platform);
 
     this.input.keyboard?.on("keydown-J", () => this.attack());
     this.input.keyboard?.on("keydown-K", () => {
@@ -112,5 +117,6 @@ export class TowerScene extends Phaser.Scene {
       hp: Math.round(definition.hp * (1 + this.floor * 0.12)),
       damage: Math.round(definition.damage * (1 + this.floor * 0.08)),
     }, 900, 520);
+    if (this.platform) this.physics.add.collider(this.enemy.sprite, this.platform);
   }
 }
