@@ -9,7 +9,7 @@ export class InventoryPanel {
   const {width,height}=this.scene.scale;const panel=this.scene.add.rectangle(width/2,height/2,Math.min(1120,width-30),Math.min(680,height-30),0x0d1017,.98).setStrokeStyle(2,0x4b5368);
   const title=this.scene.add.text(panel.x-panel.width/2+24,panel.y-panel.height/2+20,"INVENTÁRIO",{fontFamily:"Arial",fontSize:"28px",color:"#fff",fontStyle:"bold"});
   const info=this.scene.add.text(panel.x+panel.width/2-24,panel.y-panel.height/2+28,"🪙 "+this.inventory.state.gold+"   💎 "+this.inventory.state.gems+"   "+this.inventory.state.items.length+"/"+this.inventory.state.capacity,{fontFamily:"Arial",fontSize:"15px",color:"#d9dce5"}).setOrigin(1,.5);
-  this.container=this.scene.add.container(0,0,[panel,title,info]);
+  this.container=this.scene.add.container(0,0,[panel,title,info]).setDepth(1100);
   const cols=8,startX=panel.x-panel.width/2+25,startY=panel.y-panel.height/2+90;
   this.inventory.state.items.slice(0,36).forEach((entry,index)=>{
    const x=startX+(index%cols)*84,y=startY+Math.floor(index/cols)*84,def=getItemDefinition(entry.itemId);if(!def)return;const color=this.rarityColor(def.rarity);
