@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@nexo-realms/shared": "0.1.0",
-    "phaser": "^3.90.0"
+    "phaser": "^3.90.0",
+    "colyseus.js": "^0.16.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
