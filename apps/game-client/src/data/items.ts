@@ -5,9 +5,9 @@ export const RARITY_LABEL: Record<Rarity,string> = {
 };
 
 export const ITEM_DATABASE: ItemDefinition[] = [
- {id:"iron-longblade",name:"Lâmina de Ferro",type:"weapon",slot:"weapon",rarity:"common",requiredLevel:1,basePower:12,stats:{attack:12},description:"Uma espada simples e confiável.",maxUpgradeLevel:10,sellValue:45,iconKey:"item-sword"},
- {id:"hunter-bow",name:"Arco do Batedor",type:"weapon",slot:"weapon",rarity:"uncommon",requiredLevel:1,basePower:18,stats:{attack:15,critChance:2},description:"Arco leve para mobilidade e precisão.",maxUpgradeLevel:12,sellValue:90,iconKey:"item-bow"},
- {id:"apprentice-staff",name:"Cajado do Aprendiz",type:"weapon",slot:"weapon",rarity:"uncommon",requiredLevel:1,basePower:18,stats:{magicPower:17,resource:12},description:"Amplifica os primeiros feitiços.",maxUpgradeLevel:12,sellValue:95,iconKey:"item-staff"},
+ {id:"iron-longblade",name:"Lâmina de Ferro",type:"weapon",slot:"weapon",classes:["cavaleiro"],rarity:"common",requiredLevel:1,basePower:12,stats:{attack:12},description:"Uma espada simples e confiável.",maxUpgradeLevel:10,sellValue:45,iconKey:"item-sword"},
+ {id:"hunter-bow",name:"Arco do Batedor",type:"weapon",slot:"weapon",classes:["arqueiro"],rarity:"uncommon",requiredLevel:1,basePower:18,stats:{attack:15,critChance:2},description:"Arco leve para mobilidade e precisão.",maxUpgradeLevel:12,sellValue:90,iconKey:"item-bow"},
+ {id:"apprentice-staff",name:"Cajado do Aprendiz",type:"weapon",slot:"weapon",classes:["mago"],rarity:"uncommon",requiredLevel:1,basePower:18,stats:{magicPower:17,resource:12},description:"Amplifica os primeiros feitiços.",maxUpgradeLevel:12,sellValue:95,iconKey:"item-staff"},
  {id:"guardian-helm",name:"Elmo do Guardião",type:"armor",slot:"helmet",rarity:"rare",requiredLevel:1,basePower:22,stats:{defense:14,hp:30},description:"Proteção pesada sem perder visão.",maxUpgradeLevel:15,sellValue:140,iconKey:"item-helm"},
  {id:"traveler-cloak",name:"Manto do Viajante",type:"armor",slot:"chest",rarity:"rare",requiredLevel:1,basePower:24,stats:{defense:8,moveSpeed:10,hp:20},description:"Tecido leve para regiões perigosas.",maxUpgradeLevel:15,sellValue:150,iconKey:"item-cloak"},
  {id:"arcane-ring",name:"Anel Arcano",type:"accessory",slot:"ring",rarity:"epic",requiredLevel:1,basePower:34,stats:{magicPower:20,critDamage:10,resource:20},description:"Joia carregada de energia arcana.",maxUpgradeLevel:20,sellValue:260,iconKey:"item-ring"},
