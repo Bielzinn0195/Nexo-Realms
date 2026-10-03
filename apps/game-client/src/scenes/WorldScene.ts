@@ -16,13 +16,13 @@ import {SaveSystem} from "../systems/SaveSystem";
 export class WorldScene extends Phaser.Scene {
  private gameClass:GameClass="cavaleiro"; private inputMode:InputMode="keyboard"; private player!:Phaser.Physics.Arcade.Sprite; private floor?:Phaser.Physics.Arcade.Image;
  private combat!:CombatSystem; private inventory!:InventorySystem; private hud!:HUD; private inventoryPanel!:InventoryPanel; private progression=new ProgressionSystem(); private quests=new QuestSystem(); private saves=new SaveSystem();
- private enemies:EnemyActor[]=[]; private currentRegion=REGIONS[0]; private regionLabel?:Phaser.GameObjects.Text; private boss?:Phaser.GameObjects.Rectangle; private bossHp=0; private bossMax=0; private bossPhase=0; private lastBossHit=0; private saveTimer=0; private saveSlot:1|2|3=1; private loadedSave?:ReturnType<SaveSystem["load"]>;
+ private enemies:EnemyActor[]=[]; private currentRegion=REGIONS[0]; private regionLabel?:Phaser.GameObjects.Text; private boss?:Phaser.GameObjects.Rectangle; private bossHp=0; private bossMax=0; private bossPhase=0; private lastBossHit=0; private saveTimer=0; private saveSlot:1|2|3=1; private playerHp=0; private playerResource=0; private loadedSave?:ReturnType<SaveSystem["load"]>;
  private keys!:Record<string,Phaser.Input.Keyboard.Key>; private cursors!:Phaser.Types.Input.Keyboard.CursorKeys;
 
  constructor(){super("WorldScene");}
  init(data:{gameClass?:GameClass;slot?:1|2|3;load?:ReturnType<SaveSystem["load"]>}){this.gameClass=data.gameClass??data.load?.gameClass??"cavaleiro";this.saveSlot=data.slot??data.load?.slot??1;this.loadedSave=data.load;this.inputMode=(navigator.getGamepads?.().some(Boolean)?"controller":navigator.maxTouchPoints>0&&window.matchMedia("(pointer:coarse)").matches?"touch":"keyboard");}
  create(){
-  const cfg=CLASS_CONFIG[this.gameClass];this.physics.world.setBounds(0,0,4300,900);this.cameras.main.setBounds(0,0,4300,900);
+  const cfg=CLASS_CONFIG[this.gameClass];this.playerHp=cfg.baseHp;this.playerResource=cfg.baseResource;this.physics.world.setBounds(0,0,4300,900);this.cameras.main.setBounds(0,0,4300,900);
   this.buildWorld();this.player=this.physics.add.sprite(360,620,"hero-"+this.gameClass+"-idle").setDisplaySize(80,112).setCollideWorldBounds(true);this.player.setDepth(5);
   this.inventory=new InventorySystem(this.gameClass);if(this.loadedSave){Object.assign(this.inventory.state,this.loadedSave.inventory);this.progression.state.level=this.loadedSave.level;this.progression.state.xp=this.loadedSave.experience;this.currentRegion=REGIONS.find(r=>r.id===this.loadedSave!.areaId)??REGIONS[0];}this.combat=new CombatSystem(this,this.player,this.gameClass,this.inventory);this.hud=new HUD(this,this.inputMode,this.gameClass);
   this.inventoryPanel=new InventoryPanel(this,this.inventory);
@@ -33,7 +33,7 @@ export class WorldScene extends Phaser.Scene {
   this.input.keyboard!.on("keydown-M",()=>this.scene.launch("ModeMenuScene",{gameClass:this.gameClass}));
   this.input.keyboard!.on("keydown-F5",()=>this.saveGame());
   this.hud.setActions(()=>this.attack(),()=>this.dash(),i=>this.skill(i),()=>this.inventoryPanel.toggle());
-  this.cameras.main.startFollow(this.player,true,.08,.08);this.hud.update(cfg.baseHp,cfg.baseHp,cfg.baseResource,cfg.baseResource);
+  this.cameras.main.startFollow(this.player,true,.08,.08);this.playerHp=this.inventory.getStats(this.progression.state.level).hp;this.playerResource=this.inventory.getStats(this.progression.state.level).resource;this.hud.update(this.playerHp,this.inventory.getStats(this.progression.state.level).hp,this.playerResource,this.inventory.getStats(this.progression.state.level).resource);
   this.spawnWave(0);this.showRegion(this.currentRegion);this.showGuide();
  }
  update(time:number){
@@ -42,13 +42,13 @@ export class WorldScene extends Phaser.Scene {
   if(left){this.player.setVelocityX(-stats.moveSpeed);this.player.setFlipX(true);}else if(right){this.player.setVelocityX(stats.moveSpeed);this.player.setFlipX(false);}else if(this.combat.state!=="dash"){this.player.setVelocityX((this.player.body as Phaser.Physics.Arcade.Body).velocity.x*.82);}
   if((this.cursors.up.isDown||this.keys.W.isDown)&&(this.player.body as Phaser.Physics.Arcade.Body).blocked.down)this.player.setVelocityY(-470);
   this.player.setTexture("hero-"+this.gameClass+"-"+(this.combat.state==="attack"?"attack-1":this.combat.state==="skill"?"skill-1":this.combat.state==="dash"?"dash":this.combat.state==="hurt"?"hurt":"idle"));
-  this.hud.update(stats.hp,stats.hp,stats.resource,stats.resource);
+  this.playerResource=Math.min(stats.resource,this.playerResource+0.18);this.hud.update(this.playerHp,stats.hp,this.playerResource,stats.resource);
   this.enemies.forEach(e=>e.update(this.player,time));
   this.handleEnemyDamage(time);this.cleanupDead();this.updateRegion();this.updateBoss();
   if(time-this.saveTimer>30000){this.saveTimer=time;this.saveGame();}
  }
- private attack(){const a=this.combat.attack(this.time.now);if(!a)return;this.hitTargets(a.range,a.damageMultiplier);}
- private skill(index:number){const a=this.combat.skill(index);if(!a)return;this.hitTargets(a.range||520,a.damageMultiplier);if(index===2)this.player.setAlpha(.55);}
+ private attack(){const a=this.combat.attack(this.time.now);if(!a||this.playerResource<a.staminaCost)return;this.playerResource-=a.staminaCost;this.hitTargets(a.range,a.damageMultiplier);}
+ private skill(index:number){const a=this.combat.skill(index);if(!a||this.playerResource<a.staminaCost)return;this.playerResource-=a.staminaCost;this.hitTargets(a.range||520,a.damageMultiplier);if(index===2)this.player.setAlpha(.55);}
  private dash(){this.combat.dash(this.player.flipX?-1:1);}
  private hitTargets(range:number,mult:number){
   const stats=this.inventory.getStats(this.progression.state.level);const base=this.gameClass==="mago"?stats.magicPower+CLASS_CONFIG.mago.attack:stats.attack;const damage=Math.max(1,Math.round(base*mult));
@@ -56,7 +56,7 @@ export class WorldScene extends Phaser.Scene {
   if(this.boss&&Math.abs(this.boss.x-this.player.x)<=range){const crit=Math.random()<stats.critChance/100;this.bossHp=Math.max(0,this.bossHp-Math.round(damage*(crit?stats.critDamage/100:1)));this.flashHit(this.boss);if(this.bossHp<=0)this.defeatBoss();}
   const fx=this.add.image(this.player.x+(this.player.flipX?-50:50),this.player.y-20,this.gameClass==="arqueiro"?"arrow-fx":this.gameClass==="mago"?"magic-fx":"slash-fx").setDepth(7).setFlipX(this.player.flipX);this.tweens.add({targets:fx,alpha:0,x:fx.x+(this.player.flipX?-60:60),duration:180,onComplete:()=>fx.destroy()});
  }
- private handleEnemyDamage(time:number){this.enemies.forEach(e=>{if(e.isDead())return;const d=Math.abs(e.sprite.x-this.player.x);if(d<=e.definition.range&&time%30<16)this.combat.takeDamage(e.definition.damage);});}
+ private handleEnemyDamage(time:number){this.enemies.forEach(e=>{if(e.isDead())return;const d=Math.abs(e.sprite.x-this.player.x);if(d<=e.definition.range&&time-this.lastBossHit>900){this.playerHp=Math.max(0,this.playerHp-this.combat.takeDamage(e.definition.damage));this.lastBossHit=time;}});if(this.playerHp<=0){this.playerHp=1;this.showBanner("RECUO AUTOMÁTICO — CHECKPOINT");this.player.setPosition(Math.max(360,this.currentRegion.start+80),620);}}
  private updateRegion(){const next=regionAt(this.player.x);if(next.id!==this.currentRegion.id){this.currentRegion=next;this.showRegion(next);if(!this.quests.quests[1].completed)this.quests.progress("pathfinder");if(next.id==="final-fortress")this.spawnBoss(2);}}
  private spawnWave(offset:number){
   const positions=[650,980,1280,1700,2050,2450,2750,3150,3400,3800].map(x=>x+offset);
