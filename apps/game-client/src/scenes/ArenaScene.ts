@@ -149,6 +149,8 @@ export class ArenaScene extends Phaser.Scene {
     } catch (error) {
       console.warn(error);
       this.queueing = false;
+      this.room = undefined;
+      this.connected = false;
       this.status?.setText("Servidor indisponível. Inicie o multiplayer-server para jogar online.");
     }
   }
