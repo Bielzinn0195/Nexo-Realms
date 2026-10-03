@@ -2,7 +2,7 @@ export interface AuthSession { access_token:string; refresh_token:string; expire
 const STORAGE_KEY="nexo-realms-auth";
 export class AuthService {
   private readonly url:string=String(import.meta.env.VITE_SUPABASE_URL??"").replace(/\/$/,"");
-  private readonly anonKey:string=String(import.meta.env.VITE_SUPABASE_ANON_KEY??"");
+  private readonly anonKey:string=String(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY??import.meta.env.VITE_SUPABASE_ANON_KEY??"");
   get enabled(){return Boolean(this.url&&this.anonKey);}
   get session():AuthSession|undefined{try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")??undefined;}catch{return undefined;}}
   private async request(path:string,body:Record<string,unknown>){if(!this.enabled)throw new Error("Supabase Auth não configurado.");const response=await fetch(this.url+path,{method:"POST",headers:{apikey:this.anonKey,"Content-Type":"application/json"},body:JSON.stringify(body)});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(String(data.msg??data.error_description??data.message??"Falha na autenticação."));return data as AuthSession;}
