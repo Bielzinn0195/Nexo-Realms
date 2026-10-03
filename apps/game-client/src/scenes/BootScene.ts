@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { detectInputMode } from "../main";
+import { createGameArt } from "../data/ArtFactory";
 
 export class BootScene extends Phaser.Scene {
  constructor(){super("BootScene");}
@@ -9,6 +10,7 @@ export class BootScene extends Phaser.Scene {
   this.add.text(this.scale.width/2,this.scale.height/2,"Action RPG • Vertical Slice",{fontFamily:"Arial",fontSize:"18px",color:"#8e96aa"}).setOrigin(.5);
   this.add.text(this.scale.width/2,this.scale.height/2+45,"Entrada detectada: "+detectInputMode().toUpperCase(),{fontFamily:"Arial",fontSize:"15px",color:"#6d7890"}).setOrigin(.5);
   this.add.text(this.scale.width/2,this.scale.height-50,"Cavaleiro • Arqueiro • Mago • Combate • Inventário",{fontFamily:"Arial",fontSize:"14px",color:"#566075"}).setOrigin(.5);
+  createGameArt(this);
   this.createTexture("placeholder-player",0x8d6b4f,64,96);
   this.createTexture("placeholder-enemy",0x8f303d,64,90);
   this.createTexture("floor",0x10161b,64,1);
