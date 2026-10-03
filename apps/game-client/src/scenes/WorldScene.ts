@@ -7,14 +7,14 @@ import { HUD } from "../ui/HUD";
 import { InventoryPanel } from "../ui/InventoryPanel";
 
 export class WorldScene extends Phaser.Scene {
- private gameClass!:GameClass;private inputMode!:InputMode;private player!:Phaser.Physics.Arcade.Sprite;private enemy!:Phaser.Physics.Arcade.Sprite;private combat!:CombatSystem;private inventory!:InventorySystem;private hud!:HUD;private inventoryPanel!:InventoryPanel;private cursors?:Phaser.Types.Input.Keyboard.CursorKeys;private keys?:Record<string,Phaser.Input.Keyboard.Key>;private enemyHp=120;private resource=80;
+ private floor?:Phaser.Physics.Arcade.Image;private gameClass!:GameClass;private inputMode!:InputMode;private player!:Phaser.Physics.Arcade.Sprite;private enemy!:Phaser.Physics.Arcade.Sprite;private combat!:CombatSystem;private inventory!:InventorySystem;private hud!:HUD;private inventoryPanel!:InventoryPanel;private cursors?:Phaser.Types.Input.Keyboard.CursorKeys;private keys?:Record<string,Phaser.Input.Keyboard.Key>;private enemyHp=120;private resource=80;
  constructor(){super("WorldScene");}
  init(data:{gameClass?:GameClass}){this.gameClass=data.gameClass??"cavaleiro";const touch=navigator.maxTouchPoints>0&&window.matchMedia("(pointer:coarse)").matches;this.inputMode=touch?"touch":"keyboard";}
  create(){
   const cfg=CLASS_CONFIG[this.gameClass];this.resource=cfg.baseResource;this.physics.world.setBounds(0,0,3600,900);this.cameras.main.setBounds(0,0,3600,900);
   this.createWorld();
   this.player=this.physics.add.sprite(420,620,"placeholder-player").setDisplaySize(64,96).setCollideWorldBounds(true).setDragX(700);
-  this.enemy=this.physics.add.sprite(900,620,"placeholder-enemy").setDisplaySize(64,90).setCollideWorldBounds(true);
+  this.enemy=this.physics.add.sprite(900,620,"placeholder-enemy").setDisplaySize(64,90).setCollideWorldBounds(true);if(this.floor){this.physics.add.collider(this.player,this.floor);this.physics.add.collider(this.enemy,this.floor);}
   this.inventory=new InventorySystem(this.gameClass);this.combat=new CombatSystem(this,this.player,this.gameClass,this.inventory);this.hud=new HUD(this,this.inputMode,this.gameClass);this.inventoryPanel=new InventoryPanel(this,this.inventory);this.cameras.main.startFollow(this.player,true,.08,.08);
   this.cursors=this.input.keyboard?.createCursorKeys();this.keys=this.input.keyboard?.addKeys("W,A,S,D,J,K,ONE,TWO,THREE,I") as Record<string,Phaser.Input.Keyboard.Key>;
   this.input.keyboard?.on("keydown-I",()=>this.inventoryPanel.toggle());this.input.keyboard?.on("keydown-J",()=>this.performAttack());this.input.keyboard?.on("keydown-K",()=>this.performDash());this.input.keyboard?.on("keydown-ONE",()=>this.performSkill(0));this.input.keyboard?.on("keydown-TWO",()=>this.performSkill(1));this.input.keyboard?.on("keydown-THREE",()=>this.performSkill(2));
@@ -33,8 +33,8 @@ export class WorldScene extends Phaser.Scene {
  private createWorld(){
   const g=this.add.graphics();g.fillStyle(0x080d0d).fillRect(0,0,3600,900);g.fillStyle(0x18261b).fillRect(0,500,3600,400);g.fillStyle(0x253a27).fillRect(0,710,3600,190);g.fillStyle(0x10161b).fillRect(0,760,3600,140);
   for(let x=0;x<3600;x+=180){g.fillStyle(0x29442d);g.fillTriangle(x+80,500,x+20,700,x+140,700);}
-  const floor=this.physics.add.staticImage(1800,760);floor.setDisplaySize(3600,280);floor.setVisible(false);
+  this.floor=this.physics.add.staticImage(1800,760);this.floor.setDisplaySize(3600,280);this.floor.setVisible(false);
   this.add.text(120,620,"Floresta do Começo",{fontFamily:"Arial",fontSize:"30px",color:"#d7e4d5",fontStyle:"bold"});
-  this.physics.add.collider(this.player,floor);this.physics.add.collider(this.enemy,floor);
+  
  }
 }
