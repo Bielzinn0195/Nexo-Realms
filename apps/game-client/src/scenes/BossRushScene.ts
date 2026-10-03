@@ -50,6 +50,7 @@ export class BossRushScene extends Phaser.Scene {
     this.input.keyboard?.on("keydown-TWO", () => this.sendAction("skill2"));
     this.input.keyboard?.on("keydown-THREE", () => this.sendAction("skill3"));
     this.input.keyboard?.on("keydown-ESC", () => this.leave());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.input.keyboard?.removeAllListeners(); this.room?.leave(); });
     void this.connect();
   }
 
