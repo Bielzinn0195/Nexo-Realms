@@ -14,7 +14,9 @@
     "typecheck": "npm run typecheck -ws",
     "test": "npm run test -ws",
     "lint": "npm run lint -ws",
-    "validate:data": "node scripts/validate-game-data.mjs"
+    "validate:data": "node scripts/validate-game-data.mjs",
+    "smoke:server": "npm run build -w @nexo-realms/multiplayer-server && node scripts/smoke-server.mjs",
+    "verify": "npm run validate:data && npm run typecheck && npm run build && npm run smoke:server"
   },
   "engines": {
     "node": ">=20"
