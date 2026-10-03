@@ -1,0 +1,9 @@
+import Phaser from "phaser";
+import type {GameClass} from "@nexo-realms/shared";
+import {getTier} from "../systems/RankSystem";
+export class ArenaScene extends Phaser.Scene {
+ private rating=1000;private opponent=1000;private status?:Phaser.GameObjects.Text;
+ constructor(){super("ArenaScene");}
+ create(data:{gameClass:GameClass}){this.cameras.main.setBackgroundColor("#080c15");this.add.text(this.scale.width/2,60,"ARENA • ONLINE 1v1",{fontFamily:"Arial",fontSize:"34px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);this.add.text(this.scale.width/2,105,"Matchmaking por rating • casual • ranked • sala privada",{fontFamily:"Arial",fontSize:"14px",color:"#9ba6bc"}).setOrigin(.5);this.status=this.add.text(this.scale.width/2,220,"Aguardando matchmaking...",{fontFamily:"Arial",fontSize:"20px",color:"#fff",align:"center"}).setOrigin(.5);const queue=this.add.rectangle(this.scale.width/2,330,250,64,0x27385f).setStrokeStyle(2,0x739cff).setInteractive({useHandCursor:true});this.add.text(queue.x,queue.y,"BUSCAR PARTIDA",{fontFamily:"Arial",fontSize:"15px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);queue.on("pointerdown",()=>this.queue());this.add.text(this.scale.width/2,470,"RATING "+this.rating+" • "+getTier(this.rating).name,{fontFamily:"Arial",fontSize:"22px",color:"#d8c6ff"}).setOrigin(.5);this.add.text(this.scale.width/2,540,"O combate real-time será validado pelo servidor Colyseus.",{fontFamily:"Arial",fontSize:"12px",color:"#727e94"}).setOrigin(.5);this.input.keyboard?.on("keydown-ESC",()=>this.scene.start("WorldScene",{gameClass:data.gameClass}));}
+ private queue(){this.status?.setText("Procurando oponente...");this.time.delayedCall(1300,()=>this.status?.setText("Sala encontrada • partida simulada para teste"));this.time.delayedCall(2400,()=>{const win=Math.random()>.5;this.rating=Math.max(0,this.rating+(win?24:-18));this.status?.setText((win?"VITÓRIA":"DERROTA")+"\\nRating: "+this.rating+" • "+getTier(this.rating).name);});}
+}
