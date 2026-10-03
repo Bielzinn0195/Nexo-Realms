@@ -1,0 +1,2 @@
+export const serverConfig={port:Number(process.env.PORT??2567),publicOrigin:process.env.PUBLIC_ORIGIN??"*",supabaseUrl:(process.env.SUPABASE_URL??"").replace(/\/$/,""),supabaseAnonKey:process.env.SUPABASE_ANON_KEY??"",supabaseServiceRoleKey:process.env.SUPABASE_SERVICE_ROLE_KEY??"",seasonId:process.env.GAME_SEASON_ID??"season-local"};
+export const hasSupabase=Boolean(serverConfig.supabaseUrl&&serverConfig.supabaseServiceRoleKey);
