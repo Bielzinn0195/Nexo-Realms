@@ -16,23 +16,25 @@ export class BossRushScene extends Phaser.Scene {
   private online = false;
   private gameClass: GameClass = "cavaleiro";
   private auth=new AuthService();
+  private difficulty: "normal" | "hard" | "nightmare" = "normal";
 
   constructor() {
     super("BossRushScene");
   }
 
-  create(data: { gameClass: GameClass }) {
+  create(data: { gameClass: GameClass; difficulty?: "normal" | "hard" | "nightmare" }) {
     this.gameClass = data.gameClass;
+    this.difficulty = data.difficulty ?? "normal";
     this.cameras.main.setBackgroundColor("#0c0810");
 
     this.add.text(this.scale.width / 2, 42, "BOSS RUSH", {
       fontFamily: "Arial", fontSize: "36px", color: "#fff", fontStyle: "bold",
     }).setOrigin(0.5);
-    this.add.text(this.scale.width / 2, 80, "Tempo + pontuação • ranking por temporada e dificuldade", {
+    this.add.text(this.scale.width / 2, 80, "Tempo + pontuação • " + this.difficulty.toUpperCase() + " • ranking por temporada", {
       fontFamily: "Arial", fontSize: "14px", color: "#aeb5c7",
     }).setOrigin(0.5);
 
-    this.status = this.add.text(this.scale.width / 2, 130, "Conectando ao servidor...", {
+    this.status = this.add.text(this.scale.width / 2, 130, "Conectando • " + this.difficulty.toUpperCase() + "...", {
       fontFamily: "Arial", fontSize: "17px", color: "#d9c7ff", align: "center",
     }).setOrigin(0.5);
     this.label = this.add.text(this.scale.width / 2, 175, "", {
@@ -48,6 +50,7 @@ export class BossRushScene extends Phaser.Scene {
     this.input.keyboard?.on("keydown-TWO", () => this.sendAction("skill2"));
     this.input.keyboard?.on("keydown-THREE", () => this.sendAction("skill3"));
     this.input.keyboard?.on("keydown-ESC", () => this.leave());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.input.keyboard?.removeAllListeners(); this.room?.leave(); });
     void this.connect();
   }
 
@@ -63,7 +66,12 @@ export class BossRushScene extends Phaser.Scene {
     try {
       const endpoint = (import.meta.env.VITE_MULTIPLAYER_URL as string | undefined) ?? "http://localhost:2567";
       const client = new Client(endpoint);
-      this.room = await client.joinOrCreate("boss-rush", { gameClass: this.gameClass });
+      let session = this.auth.session;
+      if (session?.expires_at && session.expires_at * 1000 <= Date.now() + 30_000) {
+        session = await this.auth.refresh();
+      }
+      if (session?.access_token) client.auth.token = session.access_token;
+      this.room = await client.joinOrCreate("boss-rush", { gameClass: this.gameClass, difficulty: this.difficulty });
       this.online = true;
       this.status?.setText("ONLINE • servidor autoritativo");
       this.room.onStateChange((state: { bossIndex: number; bossHp: number; bossMaxHp: number; score: number; status: string }) => {
@@ -73,6 +81,7 @@ export class BossRushScene extends Phaser.Scene {
         this.score = state.score;
         if (state.status === "finished") this.status?.setText("BOSS RUSH CONCLUÍDO • Score " + this.score);
       });
+      this.room.onMessage("boss-phase",(message:{phase:number})=>this.status?.setText("FASE "+message.phase+" • "+this.difficulty.toUpperCase()));
       this.room.onMessage("run-finished", (message: { score: number; elapsed: number }) => {
         this.score = message.score;
         this.status?.setText("RUN FINALIZADA • " + this.score + " pontos • " + Math.floor(message.elapsed / 1000) + "s");

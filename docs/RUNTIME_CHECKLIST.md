@@ -17,3 +17,5 @@
 15. Somente depois integrar ao repositório NEXO principal.
 
 Este repositório permanece independente do NEXO principal durante toda a fase de QA.
+
+- `npm run audit:runtime` — validate client/server room contracts and secret-key boundaries.

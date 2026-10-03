@@ -48,7 +48,7 @@ export class SkillTreeSystem {
 
   unlock(id: string) {
     const node = this.nodes.find((item) => item.id === id);
-    if (!node || node.level >= node.maxLevel || this.points < node.cost) return false;
+    if (!node || node.level >= node.maxLevel || node.cost <= 0 || this.points < node.cost) return false;
     if (node.requires && !(this.nodes.find((item) => item.id === node.requires)?.level)) return false;
     this.points -= node.cost;
     node.level++;
@@ -59,7 +59,7 @@ export class SkillTreeSystem {
     this.nodes.forEach((node) => {
       node.level = Math.max(0, Math.min(node.maxLevel, Math.floor(levels?.[node.id] ?? 0)));
     });
-    this.points = Math.max(0, Math.floor(points));
+    this.points = Math.max(0, Math.min(999, Math.floor(points)));
   }
 
   exportLevels() {

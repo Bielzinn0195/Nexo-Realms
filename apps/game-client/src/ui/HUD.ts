@@ -9,6 +9,7 @@ export class HUD {
   private joystickBase?: Phaser.GameObjects.Arc;
   private joystickKnob?: Phaser.GameObjects.Arc;
   private touchVector = { x: 0, y: 0 };
+  private activePointerId?: number;
   private prompt?: Phaser.GameObjects.Text;
   private attackFn = () => {};
   private dashFn = () => {};
@@ -17,10 +18,10 @@ export class HUD {
 
   constructor(private readonly scene: Phaser.Scene, private readonly inputMode: InputMode, gameClass: GameClass) {
     const cfg = CLASS_CONFIG[gameClass];
-    this.hp = scene.add.graphics().setScrollFactor(0);
-    this.resource = scene.add.graphics().setScrollFactor(0);
+    this.hp = scene.add.graphics().setScrollFactor(0).setDepth(1000);
+    this.resource = scene.add.graphics().setScrollFactor(0).setDepth(1000);
 
-    scene.add.text(24, 18, cfg.name.toUpperCase(), { fontFamily: "Arial", fontSize: "18px", color: "#fff", fontStyle: "bold" }).setScrollFactor(0);
+    scene.add.text(24, 18, cfg.name.toUpperCase(), { fontFamily: "Arial", fontSize: "18px", color: "#fff", fontStyle: "bold" }).setScrollFactor(0).setDepth(1000);
     scene.add.text(24, 42, "HP", { fontFamily: "Arial", fontSize: "11px", color: "#d8dbe5" }).setScrollFactor(0);
     scene.add.text(24, 70, cfg.resourceName.toUpperCase(), { fontFamily: "Arial", fontSize: "11px", color: "#d8dbe5" }).setScrollFactor(0);
 
@@ -71,7 +72,7 @@ export class HUD {
     this.joystickKnob = this.scene.add.circle(baseX, baseY, 24, 0x53627e, 0.9).setStrokeStyle(2, 0x9ba8c4);
     this.touchGroup.add([this.joystickBase, this.joystickKnob]);
 
-    const updateJoystick = (pointer: Phaser.Input.Pointer) => {
+    const updateJoystick = (pointer: Phaser.Input.Pointer) => { if(this.activePointerId!==undefined&&pointer.id!==this.activePointerId)return;
       const dx = pointer.x - baseX;
       const dy = pointer.y - baseY;
       const distance = Math.min(58, Math.hypot(dx, dy));
@@ -82,11 +83,11 @@ export class HUD {
       this.touchVector.y = ny / 58;
       this.joystickKnob?.setPosition(baseX + nx, baseY + ny);
     };
-    this.joystickBase.on("pointerdown", updateJoystick);
+    this.joystickBase.on("pointerdown", (pointer:Phaser.Input.Pointer)=>{this.activePointerId=pointer.id;updateJoystick(pointer);});
     this.scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
       if (pointer.isDown && pointer.x < this.scene.scale.width * 0.42) updateJoystick(pointer);
     });
-    this.scene.input.on("pointerup", () => {
+    this.scene.input.on("pointerup", (pointer:Phaser.Input.Pointer) => { if(this.activePointerId!==undefined&&pointer.id!==this.activePointerId)return; this.activePointerId=undefined;
       this.touchVector.x = 0;
       this.touchVector.y = 0;
       this.joystickKnob?.setPosition(baseX, baseY);
@@ -102,9 +103,9 @@ export class HUD {
     ];
     buttons.forEach(([label, x, y, fn]) => {
       const c = this.scene.add.circle(x, y, 34, 0x262d40, 0.9).setStrokeStyle(2, 0x69779a).setInteractive();
-      const t = this.scene.add.text(x, y, label, { fontFamily: "Arial", fontSize: "10px", color: "#fff", fontStyle: "bold" }).setOrigin(0.5).setInteractive();
+      const t = this.scene.add.text(x, y, label, { fontFamily: "Arial", fontSize: "10px", color: "#fff", fontStyle: "bold" }).setOrigin(0.5);
       c.on("pointerdown", fn);
-      t.on("pointerdown", fn);
+
       this.touchGroup?.add([c, t]);
     });
   }

@@ -15,6 +15,7 @@
     "test": "npm run test -ws",
     "lint": "npm run lint -ws",
     "validate:data": "node scripts/validate-game-data.mjs",
+    "audit:runtime": "node scripts/audit-runtime.mjs",
     "smoke:server": "npm run build -w @nexo-realms/multiplayer-server && node scripts/smoke-server.mjs",
     "verify": "npm run validate:data && npm run typecheck && npm run build && npm run smoke:server"
   },

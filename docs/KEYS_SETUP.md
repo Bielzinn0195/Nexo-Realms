@@ -16,7 +16,7 @@ Ambiente do servidor:
 
 PORT=2567
 PUBLIC_ORIGIN=https://seu-dominio.com
-GAME_SEASON_ID=season-2026-01
+GAME_SEASON_ID=season-2026-10
 SUPABASE_URL=
 SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SECRET_KEY=
@@ -38,3 +38,6 @@ Execute database/migrations/001_game_persistence.sql e depois 002_competitive_an
 - leaderboards e recompensas.
 
 Sem keys, campanha, inventário, skills, quests, Tower e modos locais continuam disponíveis; Arena/Boss Rush podem rodar como servidor local sem persistência externa.
+
+
+> Security rule: only `VITE_SUPABASE_PUBLISHABLE_KEY` belongs in the game client. `SUPABASE_SECRET_KEY` is backend-only and must never be committed, bundled, or pasted into client configuration.

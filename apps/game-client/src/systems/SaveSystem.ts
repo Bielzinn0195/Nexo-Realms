@@ -31,7 +31,7 @@ const DEFAULT_QUESTS: QuestSave[] = [
 export class SaveSystem {
   save(slot: 1 | 2 | 3, data: Omit<RuntimeSave, "slot" | "updatedAt" | "version">) {
     const value: RuntimeSave = { ...data, slot, version: CURRENT_VERSION, updatedAt: new Date().toISOString() };
-    localStorage.setItem(key(slot), JSON.stringify(value));
+    try { localStorage.setItem(key(slot), JSON.stringify(value)); } catch { throw new Error("Não foi possível salvar: armazenamento local indisponível ou cheio."); }
     return value;
   }
 
@@ -41,16 +41,18 @@ export class SaveSystem {
     try {
       const parsed = JSON.parse(raw) as Partial<RuntimeSave>;
       if (!parsed.gameClass || !parsed.inventory) return undefined;
+      const normalizedInventory = { ...parsed.inventory, items: Array.isArray(parsed.inventory.items) ? parsed.inventory.items.map((item:any)=>({ ...item, quantity:Math.max(1,Math.floor(Number(item.quantity??1))), upgradeLevel:Math.max(0,Math.floor(Number(item.upgradeLevel??0))), experience:Math.max(0,Number(item.experience??0)) })) : [] };
+      const safeClass = parsed.gameClass === "arqueiro" || parsed.gameClass === "mago" || parsed.gameClass === "cavaleiro" ? parsed.gameClass : "cavaleiro";
       return {
         version: parsed.version ?? 1,
         slot,
         characterName: parsed.characterName ?? "Aventureiro",
-        gameClass: parsed.gameClass,
+        gameClass: safeClass,
         level: Math.max(1, parsed.level ?? 1),
         experience: Math.max(0, parsed.experience ?? 0),
         skillPoints: Math.max(0, parsed.skillPoints ?? 0),
         gold: Math.max(0, parsed.gold ?? parsed.inventory.gold ?? 0),
-        inventory: parsed.inventory,
+        inventory: { ...normalizedInventory, capacity: Math.max(1, Math.min(200, Number(parsed.inventory.capacity ?? 36))), gold: Math.max(0, Number(parsed.inventory.gold ?? 0)), gems: Math.max(0, Number(parsed.inventory.gems ?? 0)) },
         areaId: parsed.areaId ?? "forest-of-beginnings",
         checkpointId: parsed.checkpointId ?? "forest-gate",
         defeatedBosses: parsed.defeatedBosses ?? [],

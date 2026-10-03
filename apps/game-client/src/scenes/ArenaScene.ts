@@ -28,6 +28,8 @@ export class ArenaScene extends Phaser.Scene {
   private labels = new Map<string, Phaser.GameObjects.Text>();
   private inputPrevious: boolean[] = [];
   private touchButtons: Phaser.GameObjects.GameObject[] = [];
+  private keyLeft?: Phaser.Input.Keyboard.Key;
+  private keyRight?: Phaser.Input.Keyboard.Key;
 
   constructor() {
     super("ArenaScene");
@@ -40,7 +42,7 @@ export class ArenaScene extends Phaser.Scene {
     this.add.text(this.scale.width / 2, 42, "ARENA • ONLINE 1v1", {
       fontFamily: "Arial", fontSize: "34px", color: "#fff", fontStyle: "bold",
     }).setOrigin(0.5);
-    this.add.text(this.scale.width / 2, 82, "Servidor autoritativo • casual • ranqueada • sala privada", {
+    this.add.text(this.scale.width / 2, 82, "Servidor autoritativo • casual • ranqueada • 1v1", {
       fontFamily: "Arial", fontSize: "14px", color: "#9ba6bc",
     }).setOrigin(0.5);
 
@@ -68,6 +70,8 @@ export class ArenaScene extends Phaser.Scene {
       fontFamily: "Arial", fontSize: "11px", color: "#aab2c3",
     }).setOrigin(1, 0);
 
+    this.keyLeft = this.input.keyboard?.addKey("A");
+    this.keyRight = this.input.keyboard?.addKey("D");
     if (navigator.maxTouchPoints > 0) this.createTouchButtons();
 
     this.input.keyboard?.on("keydown-J", () => this.sendAction("attack"));
@@ -76,13 +80,14 @@ export class ArenaScene extends Phaser.Scene {
     this.input.keyboard?.on("keydown-TWO", () => this.sendAction("skill2"));
     this.input.keyboard?.on("keydown-THREE", () => this.sendAction("skill3"));
     this.input.keyboard?.on("keydown-ESC", () => this.leave());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.input.keyboard?.removeAllListeners(); this.touchButtons.forEach((item)=>item.destroy()); this.touchButtons=[]; });
   }
 
   update() {
     if (!this.room || !this.connected) return;
 
-    const left = this.input.keyboard?.addKey("A").isDown || this.input.keyboard?.addKey("LEFT").isDown;
-    const right = this.input.keyboard?.addKey("D").isDown || this.input.keyboard?.addKey("RIGHT").isDown;
+    const left = this.keyLeft?.isDown || false;
+    const right = this.keyRight?.isDown || false;
     this.room.send("input", { left: Boolean(left), right: Boolean(right) });
 
     const pad = navigator.getGamepads?.().find((item) => Boolean(item?.connected));
@@ -108,7 +113,13 @@ export class ArenaScene extends Phaser.Scene {
     try {
       const endpoint = (import.meta.env.VITE_MULTIPLAYER_URL as string | undefined) ?? "http://localhost:2567";
       const client = new Client(endpoint);
-      this.room = await client.joinOrCreate("arena", { gameClass: this.gameClass, rating: this.rating });
+      let session = this.auth.session;
+      if (session?.expires_at && session.expires_at * 1000 <= Date.now() + 30_000) {
+        session = await this.auth.refresh();
+      }
+      if (session?.access_token) client.auth.token = session.access_token;
+      const roomName = this.queueType === "casual" ? "arena-casual" : "arena-ranked";
+      this.room = await client.joinOrCreate(roomName, { gameClass: this.gameClass });
       this.connected = true;
       this.queueing = false;
       this.status?.setText("Sala encontrada • aguardando oponente...");
@@ -117,12 +128,19 @@ export class ArenaScene extends Phaser.Scene {
         const label = this.labels.get(message.targetId);
         if (label) label.setText("-" + message.damage);
       });
-      this.room.onMessage("match-end", (message: { winnerId: string; reason: string }) => {
+      this.room.onMessage("match-end", (message: { winnerId: string; reason: string; rating?: number }) => {
         const won = message.winnerId === this.room.sessionId;
-        this.rating = applyArenaResult(this.rating, won, 1000);
-        localStorage.setItem("nexo-arena-rating", String(this.rating));
+        if (typeof message.rating === "number" && this.queueType === "ranked") {
+          this.rating = Math.max(0, Math.min(5000, Math.round(message.rating)));
+          localStorage.setItem("nexo-arena-rating", String(this.rating));
+        }
+        if (this.queueType === "ranked") {
+          this.rating = applyArenaResult(this.rating, won, 1000);
+          localStorage.setItem("nexo-arena-rating", String(this.rating));
+        }
         this.status?.setText((won ? "VITÓRIA" : "DERROTA") + " • " + message.reason + "\nRating: " + this.rating + " • " + getTier(this.rating).name);
         this.connected = false;
+        this.queueing = false;
       });
       this.room.onLeave(() => {
         this.connected = false;
@@ -132,6 +150,8 @@ export class ArenaScene extends Phaser.Scene {
     } catch (error) {
       console.warn(error);
       this.queueing = false;
+      this.room = undefined;
+      this.connected = false;
       this.status?.setText("Servidor indisponível. Inicie o multiplayer-server para jogar online.");
     }
   }

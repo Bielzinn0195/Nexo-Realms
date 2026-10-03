@@ -18,4 +18,14 @@ for (const [file, tokens] of required) {
     if (!content.includes(token)) throw new Error(file + " is missing " + token);
   }
 }
+const modes=read("apps/game-client/src/data/modes.ts");
+for(const token of ["campaign","tower","boss-rush","arena"]) if(!modes.includes(token)) throw new Error("Missing game mode: "+token);
+const shared=read("packages/shared/src/index.ts");
+for(const token of ["cavaleiro","arqueiro","mago"]) if(!shared.includes(token)) throw new Error("Missing class: "+token);
+const world=read("apps/game-client/src/data/world.ts");
+for(const token of ["forest-of-beginnings","central-city","forgotten-mines","drowned-swamp","ancient-ruins","final-fortress"]) if(!world.includes(token)) throw new Error("Missing world area: "+token);
+const inventory=read("packages/shared/src/index.ts");
+if(!inventory.includes("experience:number")) throw new Error("Inventory experience field missing.");
+const securityMigration=read("database/migrations/003_authoritative_competitive_security.sql");
+for(const token of ["drop policy if exists \"own rating writable\"","drop policy if exists \"own rating updatable\"","drop policy if exists \"own boss rush score insert\""]) if(!securityMigration.includes(token)) throw new Error("Competitive security migration incomplete.");
 console.log("NEXO REALMS data validation passed.");
