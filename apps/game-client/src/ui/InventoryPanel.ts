@@ -29,6 +29,7 @@ export class InventoryPanel {
   }
   this.container.add(this.scene.add.text(startX,startY+4*84+15,"Clique em um item para comparar/equipar. Aprimore e desmonte equipamentos não bloqueados.",{fontFamily:"Arial",fontSize:"12px",color:"#7f899e"}));
  }
- private refresh(){if(this.container){this.container.destroy(true);this.container=undefined;}this.open();}\n private button(x:number,y:number,label:string,fn:()=>void){const b=this.scene.add.rectangle(x+55,y+20,110,38,0x263552).setStrokeStyle(1,0x6d7cff).setInteractive({useHandCursor:true});const t=this.scene.add.text(x+55,y+20,label,{fontFamily:"Arial",fontSize:"10px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);b.on("pointerdown",fn);this.container?.add([b,t]);}
+ private refresh(){if(this.container){this.container.destroy(true);this.container=undefined;}this.open();}
+ private button(x:number,y:number,label:string,fn:()=>void){const b=this.scene.add.rectangle(x+55,y+20,110,38,0x263552).setStrokeStyle(1,0x6d7cff).setInteractive({useHandCursor:true});const t=this.scene.add.text(x+55,y+20,label,{fontFamily:"Arial",fontSize:"10px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);b.on("pointerdown",fn);this.container?.add([b,t]);}
  private rarityColor(r:string){return({common:0xbfc5d2,uncommon:0x62d39b,rare:0x55a8ff,epic:0xb17cff,legendary:0xffb347,mythic:0xff5d9e} as Record<string,number>)[r]??0xffffff;}
 }
