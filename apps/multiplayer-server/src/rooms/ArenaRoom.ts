@@ -1,188 +1,27 @@
-import { Room, Client } from "colyseus";
-import { Schema, type, MapSchema } from "@colyseus/schema";
+import {Room,Client} from "colyseus";
+import {Schema,type,MapSchema} from "@colyseus/schema";
+import {SupabaseService} from "../services/SupabaseService.js";
+import {elo,tierFor} from "../ranking/Rating.js";
 
-type GameClass = "cavaleiro" | "arqueiro" | "mago";
-type InputMessage = { left?: boolean; right?: boolean; jump?: boolean };
-type ActionMessage = { action?: "attack" | "skill1" | "skill2" | "skill3" | "dash" };
+type GameClass="cavaleiro"|"arqueiro"|"mago";
+type InputMessage={left?:boolean;right?:boolean;jump?:boolean};
+type ActionMessage={action?:"attack"|"skill1"|"skill2"|"skill3"|"dash"};
+const CLASS_STATS:Record<GameClass,{hp:number;speed:number;attack:number;range:number;resource:number}>={cavaleiro:{hp:180,speed:190,attack:24,range:105,resource:80},arqueiro:{hp:130,speed:225,attack:28,range:280,resource:110},mago:{hp:105,speed:175,attack:20,range:320,resource:160}};
 
-const CLASS_STATS: Record<GameClass, { hp: number; speed: number; attack: number; range: number; resource: number }> = {
-  cavaleiro: { hp: 180, speed: 190, attack: 24, range: 105, resource: 80 },
-  arqueiro: { hp: 130, speed: 225, attack: 28, range: 280, resource: 110 },
-  mago: { hp: 105, speed: 175, attack: 20, range: 320, resource: 160 },
-};
-
-export class ArenaPlayer extends Schema {
-  @type("string") class: GameClass = "cavaleiro";
-  @type("number") x = 0;
-  @type("number") y = 0;
-  @type("number") hp = 100;
-  @type("number") maxHp = 100;
-  @type("number") resource = 100;
-  @type("number") maxResource = 100;
-  @type("number") facing = 1;
-  @type("number") rating = 1000;
-  @type("string") action = "idle";
-  @type("boolean") connected = true;
+export class ArenaPlayer extends Schema{
+ @type("string")class:GameClass="cavaleiro";@type("number")x=0;@type("number")y=0;@type("number")hp=100;@type("number")maxHp=100;@type("number")resource=100;@type("number")maxResource=100;@type("number")facing=1;@type("number")rating=1000;@type("string")action="idle";@type("boolean")connected=true;
 }
+export class ArenaState extends Schema{@type({map:ArenaPlayer})players=new MapSchema<ArenaPlayer>();@type("string")status="waiting";@type("number")startedAt=0;@type("string")winnerId="";@type("string")queueType="ranked";}
 
-export class ArenaState extends Schema {
-  @type({ map: ArenaPlayer }) players = new MapSchema<ArenaPlayer>();
-  @type("string") status = "waiting";
-  @type("number") startedAt = 0;
-  @type("string") winnerId = "";
-}
-
-interface ServerPlayer {
-  input: InputMessage;
-  nextAttackAt: number;
-  nextDashAt: number;
-  nextSkillAt: number[];
-}
-
-export class ArenaRoom extends Room<ArenaState> {
-  maxClients = 2;
-  maxMessagesPerSecond = 30;
-  private runtime = new Map<string, ServerPlayer>();
-
-  onCreate() {
-    this.state = new ArenaState();
-    this.setPatchRate(50);
-    this.setSimulationInterval((delta) => this.update(delta));
-
-    this.onMessage("input", (client, message: InputMessage) => {
-      const runtime = this.runtime.get(client.sessionId);
-      if (!runtime) return;
-      runtime.input = { left: Boolean(message?.left), right: Boolean(message?.right), jump: Boolean(message?.jump) };
-    });
-
-    this.onMessage("action", (client, message: ActionMessage) => {
-      const player = this.state.players.get(client.sessionId);
-      const runtime = this.runtime.get(client.sessionId);
-      if (!player || !runtime || this.state.status !== "running") return;
-      const action = message?.action;
-      if (!action) return;
-      const now = Date.now();
-
-      if (action === "dash") {
-        if (now < runtime.nextDashAt) return;
-        runtime.nextDashAt = now + 850;
-        player.action = "dash";
-        player.x = Math.max(-560, Math.min(560, player.x + player.facing * 150));
-        this.clock.setTimeout(() => {
-          const current = this.state.players.get(client.sessionId);
-          if (current) current.action = "idle";
-        }, 180);
-        return;
-      }
-
-      const skillIndex = action.startsWith("skill") ? Number(action.slice(-1)) - 1 : -1;
-      if (skillIndex >= 0) {
-        const cooldowns = [5200, 9000, 14000];
-        const costs = [25, 35, 45];
-        const damageMultipliers = [2, 2.6, 3.2];
-        if (!Number.isInteger(skillIndex) || skillIndex > 2) return;
-        if (now < runtime.nextSkillAt[skillIndex] || player.resource < costs[skillIndex]) return;
-        runtime.nextSkillAt[skillIndex] = now + cooldowns[skillIndex];
-        player.resource -= costs[skillIndex];
-        player.action = "skill";
-        this.resolveAttack(client, damageMultipliers[skillIndex], player.x);
-        return;
-      }
-
-      if (action === "attack") {
-        if (now < runtime.nextAttackAt) return;
-        runtime.nextAttackAt = now + 260;
-        player.action = "attack";
-        this.resolveAttack(client, 1, player.x);
-      }
-    });
-  }
-
-  onJoin(client: Client, options: { gameClass?: GameClass; rating?: number }) {
-    const gameClass: GameClass = options?.gameClass === "arqueiro" || options?.gameClass === "mago" ? options.gameClass : "cavaleiro";
-    const stats = CLASS_STATS[gameClass];
-    const player = new ArenaPlayer();
-    player.class = gameClass;
-    player.maxHp = stats.hp;
-    player.hp = stats.hp;
-    player.maxResource = stats.resource;
-    player.resource = stats.resource;
-    player.rating = Math.max(0, Math.min(5000, Number(options?.rating) || 1000));
-    player.x = this.clients.length === 1 ? -360 : 360;
-    player.facing = player.x < 0 ? 1 : -1;
-
-    this.state.players.set(client.sessionId, player);
-    this.runtime.set(client.sessionId, { input: {}, nextAttackAt: 0, nextDashAt: 0, nextSkillAt: [0, 0, 0] });
-
-    if (this.clients.length === 2) {
-      this.state.status = "running";
-      this.state.startedAt = Date.now();
-      this.broadcast("match-start", { at: this.state.startedAt });
-    }
-  }
-
-  onLeave(client: Client) {
-    const player = this.state.players.get(client.sessionId);
-    if (player) player.connected = false;
-    this.runtime.delete(client.sessionId);
-    if (this.state.status === "running") {
-      const opponent = Array.from(this.state.players.values()).find((p) => p.connected);
-      if (opponent) {
-        this.state.winnerId = this.findSessionId(opponent) ?? "";
-        this.state.status = "finished";
-        this.broadcast("match-end", { winnerId: this.state.winnerId, reason: "opponent-left" });
-      }
-    }
-  }
-
-  private update(delta: number) {
-    if (this.state.status !== "running") return;
-    const dt = Math.min(50, Math.max(0, delta)) / 1000;
-    this.state.players.forEach((player, sessionId) => {
-      const runtime = this.runtime.get(sessionId);
-      if (!runtime || !player.connected) return;
-      const stats = CLASS_STATS[player.class];
-      const direction = Number(Boolean(runtime.input.right)) - Number(Boolean(runtime.input.left));
-      if (direction !== 0) {
-        player.x = Math.max(-560, Math.min(560, player.x + direction * stats.speed * dt));
-        player.facing = direction as -1 | 1;
-        player.action = player.action === "attack" || player.action === "skill" ? player.action : "run";
-      } else if (player.action === "run") {
-        player.action = "idle";
-      }
-      player.resource = Math.min(player.maxResource, player.resource + 10 * dt);
-    });
-
-    const players = Array.from(this.state.players.entries()).filter(([, p]) => p.connected);
-    if (players.length === 2 && players.some(([, p]) => p.hp <= 0)) {
-      const loser = players.find(([, p]) => p.hp <= 0);
-      const winner = players.find(([, p]) => p.hp > 0);
-      if (loser && winner) {
-        this.state.winnerId = winner[0];
-        this.state.status = "finished";
-        this.broadcast("match-end", { winnerId: winner[0], loserId: loser[0], reason: "knockout" });
-      }
-    }
-  }
-
-  private resolveAttack(client: Client, multiplier: number, originX: number) {
-    const attacker = this.state.players.get(client.sessionId);
-    if (!attacker) return;
-    const targetEntry = Array.from(this.state.players.entries()).find(([id, p]) => id !== client.sessionId && p.connected);
-    if (!targetEntry) return;
-    const target = targetEntry[1];
-    const stats = CLASS_STATS[attacker.class];
-    const range = stats.range + (attacker.class === "cavaleiro" ? 0 : 50);
-    if (Math.abs(target.x - originX) > range) return;
-    const base = stats.attack * multiplier;
-    const defense = target.class === "cavaleiro" ? 20 : target.class === "arqueiro" ? 11 : 8;
-    const damage = Math.max(1, Math.round(base * (100 / (100 + defense))));
-    target.hp = Math.max(0, target.hp - damage);
-    this.broadcast("hit-confirmed", { attackerId: client.sessionId, targetId: targetEntry[0], damage, remainingHp: target.hp });
-  }
-
-  private findSessionId(target: ArenaPlayer) {
-    for (const [id, player] of this.state.players.entries()) if (player === target) return id;
-    return undefined;
-  }
+interface RuntimePlayer{input:InputMessage;nextAttackAt:number;nextDashAt:number;nextSkillAt:number[];userId:string;}
+export class ArenaRoom extends Room<ArenaState>{
+ maxClients=2;maxMessagesPerSecond=30;private runtime=new Map<string,RuntimePlayer>();private db=new SupabaseService();
+ async onAuth(_client:Client,_options:unknown,context:{token?:string}){if(!this.db.enabled)return{userId:"guest"};const user=context.token?await this.db.validateAccessToken(context.token):undefined;if(!user)throw new Error("Login necessário para partidas online.");return{userId:user.id};}
+ onCreate(options:{queueType?:string}={}){this.state=new ArenaState();this.state.queueType=options.queueType==="casual"?"casual":"ranked";this.setPatchRate(50);this.setSimulationInterval(delta=>this.update(delta));this.onMessage("input",(client,message:InputMessage)=>{const runtime=this.runtime.get(client.sessionId);if(!runtime)return;runtime.input={left:Boolean(message?.left),right:Boolean(message?.right),jump:Boolean(message?.jump)};});this.onMessage("action",(client,message:ActionMessage)=>{const player=this.state.players.get(client.sessionId),runtime=this.runtime.get(client.sessionId);if(!player||!runtime||this.state.status!=="running")return;const action=message?.action;if(!action)return;const now=Date.now();if(action==="dash"){if(now<runtime.nextDashAt)return;runtime.nextDashAt=now+850;player.action="dash";player.x=Math.max(-560,Math.min(560,player.x+player.facing*150));this.clock.setTimeout(()=>{const current=this.state.players.get(client.sessionId);if(current)current.action="idle";},180);return;}const skillIndex=action.startsWith("skill")?Number(action.slice(-1))-1:-1;if(skillIndex>=0){const cooldowns=[5200,9000,14000],costs=[25,35,45],multipliers=[2,2.6,3.2];if(skillIndex>2||now<runtime.nextSkillAt[skillIndex]||player.resource<costs[skillIndex])return;runtime.nextSkillAt[skillIndex]=now+cooldowns[skillIndex];player.resource-=costs[skillIndex];player.action="skill";this.resolveAttack(client,multipliers[skillIndex],player.x);return;}if(action==="attack"){if(now<runtime.nextAttackAt)return;runtime.nextAttackAt=now+260;player.action="attack";this.resolveAttack(client,1,player.x);}});
+ }
+ onJoin(client:Client,options:{gameClass?:GameClass;rating?:number},auth:{userId:string}){const gameClass:GameClass=options?.gameClass==="arqueiro"||options?.gameClass==="mago"?options.gameClass:"cavaleiro";const stats=CLASS_STATS[gameClass];const player=new ArenaPlayer();player.class=gameClass;player.maxHp=stats.hp;player.hp=stats.hp;player.maxResource=stats.resource;player.resource=stats.resource;player.rating=Math.max(0,Math.min(5000,Number(options?.rating)||1000));player.x=this.clients.length===1?-360:360;player.facing=player.x<0?1:-1;this.state.players.set(client.sessionId,player);this.runtime.set(client.sessionId,{input:{},nextAttackAt:0,nextDashAt:0,nextSkillAt:[0,0,0],userId:auth.userId});if(this.clients.length===2){this.state.status="running";this.state.startedAt=Date.now();this.broadcast("match-start",{at:this.state.startedAt,queueType:this.state.queueType});}}
+ async onLeave(client:Client){const player=this.state.players.get(client.sessionId);if(player)player.connected=false;this.runtime.delete(client.sessionId);if(this.state.status==="running"){const opponent=Array.from(this.state.players.entries()).find(([,p])=>p.connected);if(opponent){this.state.winnerId=opponent[0];this.state.status="finished";await this.finishMatch(this.state.winnerId,undefined,"opponent-left");}}}
+ private update(delta:number){if(this.state.status!=="running")return;const dt=Math.min(50,Math.max(0,delta))/1000;this.state.players.forEach((player,id)=>{const runtime=this.runtime.get(id);if(!runtime||!player.connected)return;const stats=CLASS_STATS[player.class];const direction=Number(Boolean(runtime.input.right))-Number(Boolean(runtime.input.left));if(direction!==0){player.x=Math.max(-560,Math.min(560,player.x+direction*stats.speed*dt));player.facing=direction as -1|1;player.action=player.action==="attack"||player.action==="skill"?player.action:"run";}else if(player.action==="run")player.action="idle";player.resource=Math.min(player.maxResource,player.resource+10*dt);});const players=Array.from(this.state.players.entries()).filter(([,p])=>p.connected);if(players.length===2&&players.some(([,p])=>p.hp<=0)){const loser=players.find(([,p])=>p.hp<=0),winner=players.find(([,p])=>p.hp>0);if(loser&&winner){this.state.winnerId=winner[0];this.state.status="finished";void this.finishMatch(winner[0],loser[0],"knockout");}}}
+ private resolveAttack(client:Client,multiplier:number,originX:number){const attacker=this.state.players.get(client.sessionId);if(!attacker)return;const targetEntry=Array.from(this.state.players.entries()).find(([id,p])=>id!==client.sessionId&&p.connected);if(!targetEntry)return;const target=targetEntry[1],stats=CLASS_STATS[attacker.class],range=stats.range+(attacker.class==="cavaleiro"?0:50);if(Math.abs(target.x-originX)>range)return;const base=stats.attack*multiplier,defense=target.class==="cavaleiro"?20:target.class==="arqueiro"?11:8,damage=Math.max(1,Math.round(base*(100/(100+defense))));target.hp=Math.max(0,target.hp-damage);this.broadcast("hit-confirmed",{attackerId:client.sessionId,targetId:targetEntry[0],damage,remainingHp:target.hp});}
+ private async finishMatch(winnerId:string,loserId:string|undefined,reason:string){const winner=this.state.players.get(winnerId);if(!winner)return;const loserEntry=loserId?Array.from(this.state.players.entries()).find(([id])=>id===loserId):Array.from(this.state.players.entries()).find(([id,p])=>id!==winnerId&&p.connected);if(!loserEntry)return;const loser=loserEntry[1];const winnerRuntime=this.runtime.get(winnerId);const loserRuntime=this.runtime.get(loserEntry[0]);if(!winnerRuntime||!loserRuntime)return;const beforeA=winner.rating,beforeB=loser.rating;const afterA=elo(beforeA,beforeB,true),afterB=elo(beforeB,beforeA,false);winner.rating=afterA;loser.rating=afterB;this.broadcast("match-end",{winnerId,loserId:loserId??"",reason,rating:afterA,tier:tierFor(afterA)});if(this.db.enabled){try{await this.db.insert("arena_matches",{season_id:process.env.GAME_SEASON_ID??"season-local",room_id:this.roomId,player_a:winnerRuntime.userId,player_b:loserRuntime.userId,winner:winnerRuntime.userId,rating_a_before:beforeA,rating_b_before:beforeB,rating_a_after:afterA,rating_b_after:afterB,duration_ms:Math.max(0,Date.now()-this.state.startedAt),reason});await this.db.upsert("arena_ratings",{user_id:winnerRuntime.userId,season_id:process.env.GAME_SEASON_ID??"season-local",rating:afterA,wins:1,losses:0,updated_at:new Date().toISOString()},"user_id");await this.db.upsert("arena_ratings",{user_id:loserRuntime.userId,season_id:process.env.GAME_SEASON_ID??"season-local",rating:afterB,wins:0,losses:1,updated_at:new Date().toISOString()},"user_id");}catch(error){console.error("arena persistence failed",error);}}}
 }

@@ -8,8 +8,8 @@ export interface SaveSlot { slot:1|2|3; characterName:string; gameClass:GameClas
 export interface PlayerCombatState { hp:number; maxHp:number; resource:number; maxResource:number; x:number; y:number; facing:-1|1; }
 
 export interface ItemStats { attack?:number; defense?:number; magicPower?:number; critChance?:number; critDamage?:number; attackSpeed?:number; moveSpeed?:number; hp?:number; resource?:number; lifesteal?:number; }
-export interface ItemDefinition { id:string; name:string; type:ItemType; slot?:EquipmentSlot; rarity:Rarity; requiredLevel:number; basePower:number; stats:ItemStats; description:string; maxUpgradeLevel:number; sellValue:number; iconKey:string; }
-export interface InventoryItem { instanceId:string; itemId:string; quantity:number; upgradeLevel:number; masteryLevel?:number; imbueLevel?:number; locked:boolean; }
+export interface ItemDefinition { id:string; name:string; type:ItemType; slot?:EquipmentSlot; classes?:GameClass[]; rarity:Rarity; requiredLevel:number; basePower:number; stats:ItemStats; description:string; maxUpgradeLevel:number; sellValue:number; iconKey:string; }
+export interface InventoryItem { instanceId:string; itemId:string; quantity:number; upgradeLevel:number; experience:number; masteryLevel?:number; imbueLevel?:number; locked:boolean; }
 export interface EquipmentState { weapon?:string; helmet?:string; chest?:string; gloves?:string; boots?:string; ring?:string; amulet?:string; }
 export interface InventoryState { capacity:number; gold:number; gems:number; materials:Record<string,number>; items:InventoryItem[]; equipment:EquipmentState; }
 

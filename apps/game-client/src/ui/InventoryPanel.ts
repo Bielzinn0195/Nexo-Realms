@@ -16,13 +16,13 @@ export class InventoryPanel {
    const slot=this.scene.add.rectangle(x+34,y+34,70,70,entry.locked?0x26303b:0x171d28,.95).setStrokeStyle(entry.instanceId===this.selected?3:1,color).setInteractive({useHandCursor:true});
    const icon=this.scene.add.text(x+34,y+23,def.iconKey.replace("item-","").toUpperCase(),{fontFamily:"Arial",fontSize:"10px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);
    const label=this.scene.add.text(x+34,y+52,def.name.slice(0,11)+(entry.upgradeLevel?" +"+entry.upgradeLevel:""),{fontFamily:"Arial",fontSize:"9px",color:"#fff"}).setOrigin(.5);
-   slot.on("pointerdown",()=>{this.selected=entry.instanceId;this.refresh();});this.container?.add([slot,icon,label]);
+   slot.on("pointerdown",()=>{this.selected=entry.instanceId;this.refresh();});const xp=this.scene.add.text(x+34,y+65,"XP "+(entry.experience??0),{fontFamily:"Arial",fontSize:"8px",color:"#8fa6ff"}).setOrigin(.5);this.container?.add([slot,icon,label,xp]);
   });
   const chosen=this.inventory.state.items.find(i=>i.instanceId===this.selected);const def=chosen?getItemDefinition(chosen.itemId):undefined;
   if(def&&chosen){
    const x=panel.x+panel.width/2-300,y=panel.y-panel.height/2+105;const box=this.scene.add.rectangle(x+120,y+150,270,330,0x171c26).setStrokeStyle(2,this.rarityColor(def.rarity));this.container.add(box);
    this.container.add(this.scene.add.text(x,y,def.name+" "+(chosen.upgradeLevel?"+"+chosen.upgradeLevel:""),{fontFamily:"Arial",fontSize:"20px",color:"#fff",fontStyle:"bold",wordWrap:{width:250}}));
-   this.container.add(this.scene.add.text(x,y+50,RARITY_LABEL[def.rarity]+"\\n"+def.description+"\\n\\nATK "+(def.stats.attack??0)+"  DEF "+(def.stats.defense??0)+"\\nMAG "+(def.stats.magicPower??0)+"  HP "+(def.stats.hp??0)+"\\nCRIT "+(def.stats.critChance??0)+"%",{fontFamily:"Arial",fontSize:"13px",color:"#bfc7d8",lineSpacing:7,wordWrap:{width:250}}));
+   this.container.add(this.scene.add.text(x,y+50,RARITY_LABEL[def.rarity]+"\\nXP "+(chosen.experience??0)+" • Nível de item "+this.inventory.getItemLevel(chosen)+"\\n"+def.description+"\\n\\nATK "+(def.stats.attack??0)+"  DEF "+(def.stats.defense??0)+"\\nMAG "+(def.stats.magicPower??0)+"  HP "+(def.stats.hp??0)+"\\nCRIT "+(def.stats.critChance??0)+"%",{fontFamily:"Arial",fontSize:"13px",color:"#bfc7d8",lineSpacing:7,wordWrap:{width:250}}));
    this.button(x,y+245,"EQUIPAR",()=>{this.inventory.equip(chosen.instanceId,99);this.open();});
    if(def.maxUpgradeLevel>0)this.button(x+135,y+245,"APRIMORAR",()=>{this.inventory.upgrade(chosen.instanceId);this.refresh();});this.button(x,y+290,"ASCENDER",()=>{this.inventory.ascend(chosen.instanceId);this.refresh();});this.button(x+135,y+290,"IMBUIR",()=>{this.inventory.imbue(chosen.instanceId);this.refresh();});
    if(!chosen.locked)this.button(x,y+335,"DESMONTAR",()=>{this.inventory.dismantle(chosen.instanceId);this.selected=undefined;this.refresh();});

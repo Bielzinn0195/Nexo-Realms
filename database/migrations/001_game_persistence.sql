@@ -25,7 +25,6 @@ create table if not exists public.arena_ratings (
   updated_at timestamptz not null default now()
 );
 alter table public.arena_ratings enable row level security;
-create policy "ratings readable" on public.arena_ratings for select using (true);
 create policy "own rating writable" on public.arena_ratings for insert with check (auth.uid()=user_id);
 create policy "own rating updatable" on public.arena_ratings for update using (auth.uid()=user_id) with check (auth.uid()=user_id);
 

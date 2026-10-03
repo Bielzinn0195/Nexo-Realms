@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { Client } from "colyseus.js";
 import { BOSSES } from "../data/bosses";
 import type { GameClass } from "@nexo-realms/shared";
+import {AuthService} from "../systems/AuthService";
 
 export class BossRushScene extends Phaser.Scene {
   private index = 0;
@@ -14,6 +15,7 @@ export class BossRushScene extends Phaser.Scene {
   private room?: any;
   private online = false;
   private gameClass: GameClass = "cavaleiro";
+  private auth=new AuthService();
 
   constructor() {
     super("BossRushScene");
