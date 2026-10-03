@@ -11,7 +11,7 @@ export class InventoryPanel {
   const info=this.scene.add.text(panel.x+panel.width/2-24,panel.y-panel.height/2+28,"🪙 "+this.inventory.state.gold+"   💎 "+this.inventory.state.gems+"   "+this.inventory.state.items.length+"/"+this.inventory.state.capacity,{fontFamily:"Arial",fontSize:"15px",color:"#d9dce5"}).setOrigin(1,.5);
   this.container=this.scene.add.container(0,0,[panel,title,info]);
   const cols=8,startX=panel.x-panel.width/2+25,startY=panel.y-panel.height/2+90;
-  this.inventory.state.items.slice(0,32).forEach((entry,index)=>{
+  this.inventory.state.items.slice(0,36).forEach((entry,index)=>{
    const x=startX+(index%cols)*84,y=startY+Math.floor(index/cols)*84,def=getItemDefinition(entry.itemId);if(!def)return;const color=this.rarityColor(def.rarity);
    const slot=this.scene.add.rectangle(x+34,y+34,70,70,entry.locked?0x26303b:0x171d28,.95).setStrokeStyle(entry.instanceId===this.selected?3:1,color).setInteractive({useHandCursor:true});
    const icon=this.scene.add.text(x+34,y+23,def.iconKey.replace("item-","").toUpperCase(),{fontFamily:"Arial",fontSize:"10px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);
