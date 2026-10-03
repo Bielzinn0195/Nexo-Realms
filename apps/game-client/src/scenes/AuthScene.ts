@@ -19,5 +19,5 @@ export class AuthScene extends Phaser.Scene{
  private values(){return{email:(this.email.node as HTMLInputElement).value.trim(),password:(this.password.node as HTMLInputElement).value};}
  private async signIn(){const v=this.values();await this.submit(()=>this.auth.signIn(v.email,v.password),"Login realizado.");}
  private async signUp(){const v=this.values();await this.submit(()=>this.auth.signUp(v.email,v.password),"Conta criada. Verifique o e-mail se a confirmação estiver ativa.");}
- private async submit(action:()=>Promise<unknown>,success:string){try{if(!this.auth.enabled){this.status.setText("Conecte VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY para usar contas.");return;}await action();this.status.setText(success);this.time.delayedCall(350,()=>this.scene.start("SaveSlotsScene"));}catch(error){this.status.setText(String(error instanceof Error?error.message:error));}}
+ private async submit(action:()=>Promise<unknown>,success:string){try{if(!this.auth.enabled){this.status.setText("Conecte VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY para usar contas.");return;}await action();this.status.setText(success);this.time.delayedCall(350,()=>this.scene.start("SaveSlotsScene"));}catch(error){this.status.setText(String(error instanceof Error?error.message:error));}}
 }
