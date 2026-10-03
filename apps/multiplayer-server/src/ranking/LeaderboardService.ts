@@ -4,7 +4,7 @@ export interface LeaderboardRow{userId:string;score:number;rating?:number;positi
 export class LeaderboardService{
  private readonly local=new Map<string,LeaderboardRow[]>();
  constructor(private readonly db=new SupabaseService()){}
- async top(mode:"arena"|"boss-rush"|"tower",limit=20){
+ async top(mode:"arena"|"boss-rush"|"tower",limit=20):Promise<LeaderboardRow[]>{
   limit=Math.max(1,Math.min(100,limit));
   if(this.db.enabled){
    try{
