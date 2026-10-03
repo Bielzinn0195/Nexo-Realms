@@ -57,3 +57,8 @@ npm run build
 ## Important
 
 The main NEXO repository is intentionally not modified by this project. Integration happens only after the standalone game is tested and audited.
+
+
+### Runtime hardening status
+
+The standalone runtime now validates Colyseus room contracts in CI, refreshes Supabase sessions before online joins, and includes the authoritative competitive-security migration. The NEXO streaming Supabase project remains separate; use a dedicated Realms project before enabling cloud persistence.
