@@ -41,11 +41,12 @@ export class SaveSystem {
     try {
       const parsed = JSON.parse(raw) as Partial<RuntimeSave>;
       if (!parsed.gameClass || !parsed.inventory) return undefined;
+      const safeClass = parsed.gameClass === "arqueiro" || parsed.gameClass === "mago" || parsed.gameClass === "cavaleiro" ? parsed.gameClass : "cavaleiro";
       return {
         version: parsed.version ?? 1,
         slot,
         characterName: parsed.characterName ?? "Aventureiro",
-        gameClass: parsed.gameClass,
+        gameClass: safeClass,
         level: Math.max(1, parsed.level ?? 1),
         experience: Math.max(0, parsed.experience ?? 0),
         skillPoints: Math.max(0, parsed.skillPoints ?? 0),
