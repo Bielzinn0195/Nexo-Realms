@@ -19,7 +19,7 @@ export class ArenaScene extends Phaser.Scene {
   private room?: any;
   private gameClass: GameClass = "cavaleiro";
   private connected = false;
-  private queueing = false;
+  private queueing = false;\n  private queueType:"ranked"|"casual"="ranked";\n  private auth=new AuthService();
   private localX = 0;
   private players = new Map<string, Phaser.GameObjects.Rectangle>();
   private labels = new Map<string, Phaser.GameObjects.Text>();
@@ -48,9 +48,9 @@ export class ArenaScene extends Phaser.Scene {
       fontFamily: "Arial", fontSize: "20px", color: "#fff", align: "center",
     }).setOrigin(0.5);
 
-    const queue = this.add.rectangle(this.scale.width / 2, 215, 250, 56, 0x27385f)
+    const casual = this.add.rectangle(this.scale.width / 2 - 145, 215, 210, 48, 0x202d48).setStrokeStyle(1,0x5f7198).setInteractive({useHandCursor:true});\n    this.add.text(casual.x,casual.y,"CASUAL",{fontFamily:"Arial",fontSize:"13px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);\n    casual.on("pointerdown",()=>{this.queueType="casual";void this.queue();});\n    const queue = this.add.rectangle(this.scale.width / 2 + 120, 215, 250, 56, 0x27385f)
       .setStrokeStyle(2, 0x739cff).setInteractive({ useHandCursor: true });
-    this.add.text(queue.x, queue.y, "BUSCAR PARTIDA", {
+    this.add.text(queue.x, queue.y, "BUSCAR RANQUEADA", {
       fontFamily: "Arial", fontSize: "15px", color: "#fff", fontStyle: "bold",
     }).setOrigin(0.5);
     queue.on("pointerdown", () => void this.queue());
