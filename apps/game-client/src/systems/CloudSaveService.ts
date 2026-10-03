@@ -1,5 +1,5 @@
 export interface CloudSaveConfig{url:string;publishableKey:string;}
-export interface CloudSavePayload{characterName:string;gameClass:string;level:number;areaId:string;checkpointId:string;[key:string]:unknown;}
+export interface CloudSavePayload{characterName?:unknown;gameClass?:unknown;level?:unknown;areaId?:unknown;checkpointId?:unknown;}
 export class CloudSaveService{
  private readonly config?:CloudSaveConfig;
  constructor(config?:CloudSaveConfig){this.config=config??(()=>{const url=String(import.meta.env.VITE_SUPABASE_URL??"").replace(/\/$/,"");const publishableKey=String(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY??import.meta.env.VITE_SUPABASE_ANON_KEY??"");return url&&publishableKey?{url,publishableKey}:undefined;})();}
