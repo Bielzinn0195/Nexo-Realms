@@ -4,13 +4,13 @@
 Explore a connected ruined kingdom, master a combat class, discover shortcuts and secrets, complete quests, defeat bosses and build a persistent character.
 
 ## Classes
-### Guardião
+### Cavaleiro
 Sword and shield. High defense, reliable close combat, guard/counter mechanics.
 
-### Errante
+### Arqueiro
 Fast melee fighter. Mobility, dash chains, critical windows and aggressive combos.
 
-### Arcanista
+### Mago
 Ranged magic specialist. Elemental skills, resource management and lower physical defense.
 
 ## World
