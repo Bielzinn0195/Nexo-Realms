@@ -147,3 +147,8 @@ NEXO REALMS remains independently testable and can be integrated only after the 
 - Boss Rush passes the current Supabase access token and exposes difficulty/phase state.
 - Competitive database writes are prepared for server-only authority in migration 003.
 - CI now runs `audit:runtime` in addition to data validation, typecheck, build and server smoke.
+
+
+## 100-cycle completion checkpoint
+
+The branch `feat/100-audits-100-fixes` contains 100 alternating audit/fix records. The canonical ledger is `docs/AUDIT_100_CYCLES.md`. Final verification is intentionally delegated to the repository CI before merge; Supabase REALMS production setup remains separate from the existing NEXO streaming project.
