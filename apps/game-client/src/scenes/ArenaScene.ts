@@ -40,7 +40,7 @@ export class ArenaScene extends Phaser.Scene {
     this.add.text(this.scale.width / 2, 42, "ARENA • ONLINE 1v1", {
       fontFamily: "Arial", fontSize: "34px", color: "#fff", fontStyle: "bold",
     }).setOrigin(0.5);
-    this.add.text(this.scale.width / 2, 82, "Servidor autoritativo • casual • ranqueada • sala privada", {
+    this.add.text(this.scale.width / 2, 82, "Servidor autoritativo • casual • ranqueada • 1v1", {
       fontFamily: "Arial", fontSize: "14px", color: "#9ba6bc",
     }).setOrigin(0.5);
 
