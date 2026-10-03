@@ -16,7 +16,7 @@ export function detectInputMode():"touch"|"keyboard"|"controller"{
  if(hasController)return"controller";if(hasTouch)return"touch";return"keyboard";
 }
 const config:Phaser.Types.Core.GameConfig={
- type:Phaser.AUTO,width:1280,height:720,backgroundColor:"#080a0f",parent:"game",input:{gamepad:true},
+ type:Phaser.AUTO,width:1280,height:720,backgroundColor:"#080a0f",parent:"game",input:{gamepad:true},dom:{createContainer:true},
  physics:{default:"arcade",arcade:{gravity:{x:0,y:900},debug:false}},scale:{mode:Phaser.Scale.RESIZE,autoCenter:Phaser.Scale.CENTER_BOTH},
  scene:[BootScene,AuthScene,SaveSlotsScene,CharacterSelectScene,WorldScene,ModeMenuScene,TowerScene,BossRushScene,ArenaScene],
 };
