@@ -80,6 +80,7 @@ export class BossRushScene extends Phaser.Scene {
         this.score = state.score;
         if (state.status === "finished") this.status?.setText("BOSS RUSH CONCLUÍDO • Score " + this.score);
       });
+      this.room.onMessage("boss-phase",(message:{phase:number})=>this.status?.setText("FASE "+message.phase+" • "+this.difficulty.toUpperCase()));
       this.room.onMessage("run-finished", (message: { score: number; elapsed: number }) => {
         this.score = message.score;
         this.status?.setText("RUN FINALIZADA • " + this.score + " pontos • " + Math.floor(message.elapsed / 1000) + "s");
