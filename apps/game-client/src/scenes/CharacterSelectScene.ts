@@ -12,8 +12,8 @@ export class CharacterSelectScene extends Phaser.Scene {
    const card=this.add.rectangle(x,330,250,370,0x151922).setStrokeStyle(2,0x343b4d).setInteractive({useHandCursor:true});
    this.add.text(x,205,CHARACTERS[gameClass].name,{fontFamily:"Arial",fontSize:"25px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);
    const color=gameClass==="cavaleiro"?0x9aa1ad:gameClass==="arqueiro"?0x719b57:0x557dcc;
-   const hero=this.add.circle(x,330,62,color,.85);
-   this.add.text(x,330,gameClass==="cavaleiro"?"⚔":gameClass==="arqueiro"?"🏹":"✦",{fontFamily:"Arial",fontSize:"48px",color:"#fff"}).setOrigin(.5);
+   const hero=this.add.image(x,330,"hero-"+gameClass+"-idle").setDisplaySize(100,140);
+   
    this.add.text(x,490,this.description(gameClass),{fontFamily:"Arial",fontSize:"14px",color:"#aeb5c7",align:"center",wordWrap:{width:210}}).setOrigin(.5);
    this.add.text(x,575,"CLIQUE PARA JOGAR",{fontFamily:"Arial",fontSize:"11px",color:"#6d7cff"}).setOrigin(.5);
    card.on("pointerdown",()=>this.scene.start("WorldScene",{gameClass}));
