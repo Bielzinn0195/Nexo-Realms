@@ -6,8 +6,10 @@ O jogo foi preparado para funcionar em modo local/convidado sem keys. Para ativa
 Arquivo: apps/game-client/.env.local
 
 VITE_SUPABASE_URL=
-VITE_SUPABASE_PUBLISHABLE_KEY=\n\n# Legacy alias if your project still uses it:\nVITE_SUPABASE_PUBLISHABLE_KEY=\nSUPABASE_SECRET_KEY=\n\n# Legacy aliases supported during migration:\nSUPABASE_ANON_KEY=
+VITE_SUPABASE_PUBLISHABLE_KEY=
 VITE_MULTIPLAYER_URL=
+
+O alias legado VITE_SUPABASE_ANON_KEY continua suportado pelo código, caso seu projeto ainda esteja na chave antiga.
 
 ## Multiplayer
 Ambiente do servidor:
@@ -16,10 +18,12 @@ PORT=2567
 PUBLIC_ORIGIN=https://seu-dominio.com
 GAME_SEASON_ID=season-2026-01
 SUPABASE_URL=
-SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
 
-A service role key/secret key nunca deve ir para o navegador.
+Os aliases legados SUPABASE_ANON_KEY e SUPABASE_SERVICE_ROLE_KEY também são aceitos durante a migração.
+
+A secret key nunca deve ir para o navegador.
 
 ## Banco
 Execute database/migrations/001_game_persistence.sql e depois 002_competitive_and_rewards.sql no projeto Supabase escolhido.
