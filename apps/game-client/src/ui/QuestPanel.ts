@@ -27,7 +27,7 @@ export class QuestPanel {
     this.container = this.scene.add.container(0, 0, [bg, title]);
 
     this.quests.quests.forEach((quest, index) => {
-      const y = this.scene.scale.height / 2 - height / 2 + 90 + index * 125;
+      const y = this.scene.scale.height / 2 - height / 2 + 90 + index * Math.min(125,Math.max(96,(height-150)/3));
       const card = this.scene.add.rectangle(this.scene.scale.width / 2, y, width - 50, 105, 0x171d28)
         .setStrokeStyle(1, quest.completed ? 0x6d7cff : 0x394255);
       const text = this.scene.add.text(this.scene.scale.width / 2 - width / 2 + 38, y - 35,
