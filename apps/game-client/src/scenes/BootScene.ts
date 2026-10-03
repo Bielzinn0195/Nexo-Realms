@@ -14,7 +14,7 @@ export class BootScene extends Phaser.Scene {
   this.createTexture("placeholder-player",0x8d6b4f,64,96);
   this.createTexture("placeholder-enemy",0x8f303d,64,90);
   this.createTexture("floor",0x10161b,64,1);
-  this.time.delayedCall(700,()=>this.scene.start("CharacterSelectScene"));
+  this.time.delayedCall(700,()=>this.scene.start("SaveSlotsScene"));
  }
  private createTexture(key:string,color:number,w:number,h:number){
   if(this.textures.exists(key))return;
