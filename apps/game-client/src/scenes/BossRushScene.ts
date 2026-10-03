@@ -16,19 +16,21 @@ export class BossRushScene extends Phaser.Scene {
   private online = false;
   private gameClass: GameClass = "cavaleiro";
   private auth=new AuthService();
+  private difficulty: "normal" | "hard" | "nightmare" = "normal";
 
   constructor() {
     super("BossRushScene");
   }
 
-  create(data: { gameClass: GameClass }) {
+  create(data: { gameClass: GameClass; difficulty?: "normal" | "hard" | "nightmare" }) {
     this.gameClass = data.gameClass;
+    this.difficulty = data.difficulty ?? "normal";
     this.cameras.main.setBackgroundColor("#0c0810");
 
     this.add.text(this.scale.width / 2, 42, "BOSS RUSH", {
       fontFamily: "Arial", fontSize: "36px", color: "#fff", fontStyle: "bold",
     }).setOrigin(0.5);
-    this.add.text(this.scale.width / 2, 80, "Tempo + pontuação • ranking por temporada e dificuldade", {
+    this.add.text(this.scale.width / 2, 80, "Tempo + pontuação • " + this.difficulty.toUpperCase() + " • ranking por temporada", {
       fontFamily: "Arial", fontSize: "14px", color: "#aeb5c7",
     }).setOrigin(0.5);
 
@@ -68,7 +70,7 @@ export class BossRushScene extends Phaser.Scene {
         session = await this.auth.refresh();
       }
       if (session?.access_token) client.auth.token = session.access_token;
-      this.room = await client.joinOrCreate("boss-rush", { gameClass: this.gameClass });
+      this.room = await client.joinOrCreate("boss-rush", { gameClass: this.gameClass, difficulty: this.difficulty });
       this.online = true;
       this.status?.setText("ONLINE • servidor autoritativo");
       this.room.onStateChange((state: { bossIndex: number; bossHp: number; bossMaxHp: number; score: number; status: string }) => {
