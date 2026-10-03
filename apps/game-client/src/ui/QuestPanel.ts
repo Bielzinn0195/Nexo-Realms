@@ -24,7 +24,7 @@ export class QuestPanel {
       fontFamily: "Arial", fontSize: "26px", color: "#fff", fontStyle: "bold",
     }).setOrigin(0.5);
 
-    this.container = this.scene.add.container(0, 0, [bg, title]);
+    this.container = this.scene.add.container(0, 0, [bg, title]).setDepth(1100);
 
     this.quests.quests.forEach((quest, index) => {
       const y = this.scene.scale.height / 2 - height / 2 + 90 + index * Math.min(125,Math.max(96,(height-150)/3));
