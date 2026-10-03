@@ -11,6 +11,6 @@ export class EnemyActor {
  readonly sprite:Phaser.Physics.Arcade.Sprite; hp:number; private attackAt=0; private hurtUntil=0;
  constructor(private scene:Phaser.Scene,public readonly definition:EnemyDefinition,x:number,y:number){this.hp=definition.hp;this.sprite=scene.physics.add.sprite(x,y,"placeholder-enemy").setDisplaySize(58,78).setTint(definition.color).setCollideWorldBounds(true);}
  update(player:Phaser.Physics.Arcade.Sprite,now:number){const dx=player.x-this.sprite.x,d= Math.abs(dx);if(this.hp<=0)return;if(now<this.hurtUntil){this.sprite.setVelocityX(0);return;}if(d>this.definition.range){this.sprite.setVelocityX(Math.sign(dx)*this.definition.speed);this.sprite.setFlipX(dx<0);}else{this.sprite.setVelocityX(0);if(now-this.attackAt>1400){this.attackAt=now;this.sprite.setScale(1.02,0.98);}}}
- hit(damage:number){if(this.hp<=0)return;this.hp=Math.max(0,this.hp-damage);this.hurtUntil=this.scene.time.now+120;this.sprite.setTint(0xffffff);this.scene.tweens.add({targets:this.sprite,x:this.sprite.x+(Math.random()>.5?10:-10),duration:70,yoyo:true});this.scene.time.delayedCall(100,()=>this.sprite.setTint(this.definition.color));}
+ hit(damage:number){if(this.hp<=0)return;this.hp=Math.max(0,this.hp-damage);this.hurtUntil=this.scene.time.now+120;this.sprite.setTint(0xffffff);this.scene.tweens.add({targets:this.sprite,x:this.sprite.x+(Math.random()>.5?10:-10),duration:70,yoyo:true});this.scene.time.delayedCall(100,()=>{if(this.sprite.active)this.sprite.setTint(this.definition.color);});}
  isDead(){return this.hp<=0;} destroy(){this.sprite.destroy();}
 }
