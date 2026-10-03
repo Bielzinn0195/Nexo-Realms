@@ -10,6 +10,7 @@ export interface QuestSave {
 export interface RuntimeSave extends SaveSlot {
   version: number;
   experience: number;
+  skillPoints: number;
   gold: number;
   inventory: InventoryState;
   defeatedBosses: string[];
@@ -47,6 +48,7 @@ export class SaveSystem {
         gameClass: parsed.gameClass,
         level: Math.max(1, parsed.level ?? 1),
         experience: Math.max(0, parsed.experience ?? 0),
+        skillPoints: Math.max(0, parsed.skillPoints ?? 0),
         gold: Math.max(0, parsed.gold ?? parsed.inventory.gold ?? 0),
         inventory: parsed.inventory,
         areaId: parsed.areaId ?? "forest-of-beginnings",
@@ -83,6 +85,7 @@ export class SaveSystem {
       gameClass,
       level: 1,
       experience: 0,
+      skillPoints: 0,
       gold: inventory.gold,
       inventory,
       areaId: "forest-of-beginnings",
