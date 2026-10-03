@@ -7,7 +7,7 @@ export class BootScene extends Phaser.Scene {
  create(){
   this.cameras.main.setBackgroundColor("#07090d");
   this.add.text(this.scale.width/2,this.scale.height/2-80,"NEXO REALMS",{fontFamily:"Arial",fontSize:"54px",color:"#ffffff",fontStyle:"bold"}).setOrigin(.5);
-  this.add.text(this.scale.width/2,this.scale.height/2,"Action RPG • Vertical Slice",{fontFamily:"Arial",fontSize:"18px",color:"#8e96aa"}).setOrigin(.5);
+  this.add.text(this.scale.width/2,this.scale.height/2,"Dark Fantasy Action RPG • NEXO REALMS",{fontFamily:"Arial",fontSize:"18px",color:"#8e96aa"}).setOrigin(.5);
   this.add.text(this.scale.width/2,this.scale.height/2+45,"Entrada detectada: "+detectInputMode().toUpperCase(),{fontFamily:"Arial",fontSize:"15px",color:"#6d7890"}).setOrigin(.5);
   this.add.text(this.scale.width/2,this.scale.height-50,"Cavaleiro • Arqueiro • Mago • Combate • Inventário",{fontFamily:"Arial",fontSize:"14px",color:"#566075"}).setOrigin(.5);
   createGameArt(this);
