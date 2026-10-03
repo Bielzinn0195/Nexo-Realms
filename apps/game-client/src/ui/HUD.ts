@@ -103,9 +103,9 @@ export class HUD {
     ];
     buttons.forEach(([label, x, y, fn]) => {
       const c = this.scene.add.circle(x, y, 34, 0x262d40, 0.9).setStrokeStyle(2, 0x69779a).setInteractive();
-      const t = this.scene.add.text(x, y, label, { fontFamily: "Arial", fontSize: "10px", color: "#fff", fontStyle: "bold" }).setOrigin(0.5).setInteractive();
+      const t = this.scene.add.text(x, y, label, { fontFamily: "Arial", fontSize: "10px", color: "#fff", fontStyle: "bold" }).setOrigin(0.5);
       c.on("pointerdown", fn);
-      t.on("pointerdown", fn);
+
       this.touchGroup?.add([c, t]);
     });
   }
