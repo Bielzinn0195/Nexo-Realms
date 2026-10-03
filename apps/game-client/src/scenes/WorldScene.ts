@@ -16,15 +16,15 @@ import {SaveSystem} from "../systems/SaveSystem";
 export class WorldScene extends Phaser.Scene {
  private gameClass:GameClass="cavaleiro"; private inputMode:InputMode="keyboard"; private player!:Phaser.Physics.Arcade.Sprite; private floor?:Phaser.Physics.Arcade.Image;
  private combat!:CombatSystem; private inventory!:InventorySystem; private hud!:HUD; private inventoryPanel!:InventoryPanel; private progression=new ProgressionSystem(); private quests=new QuestSystem(); private saves=new SaveSystem();
- private enemies:EnemyActor[]=[]; private currentRegion=REGIONS[0]; private regionLabel?:Phaser.GameObjects.Text; private boss?:Phaser.GameObjects.Rectangle; private bossHp=0; private bossMax=0; private bossPhase=0; private lastBossHit=0; private saveTimer=0; private saveSlot:1|2|3=1;
+ private enemies:EnemyActor[]=[]; private currentRegion=REGIONS[0]; private regionLabel?:Phaser.GameObjects.Text; private boss?:Phaser.GameObjects.Rectangle; private bossHp=0; private bossMax=0; private bossPhase=0; private lastBossHit=0; private saveTimer=0; private saveSlot:1|2|3=1; private loadedSave?:ReturnType<SaveSystem["load"]>;
  private keys!:Record<string,Phaser.Input.Keyboard.Key>; private cursors!:Phaser.Types.Input.Keyboard.CursorKeys;
 
  constructor(){super("WorldScene");}
- init(data:{gameClass?:GameClass;slot?:1|2|3;load?:ReturnType<SaveSystem["load"]>}){this.gameClass=data.gameClass??data.load?.gameClass??"cavaleiro";this.saveSlot=data.slot??data.load?.slot??1;this.inputMode=(navigator.getGamepads?.().some(Boolean)?"controller":navigator.maxTouchPoints>0&&window.matchMedia("(pointer:coarse)").matches?"touch":"keyboard");}
+ init(data:{gameClass?:GameClass;slot?:1|2|3;load?:ReturnType<SaveSystem["load"]>}){this.gameClass=data.gameClass??data.load?.gameClass??"cavaleiro";this.saveSlot=data.slot??data.load?.slot??1;this.loadedSave=data.load;this.inputMode=(navigator.getGamepads?.().some(Boolean)?"controller":navigator.maxTouchPoints>0&&window.matchMedia("(pointer:coarse)").matches?"touch":"keyboard");}
  create(){
   const cfg=CLASS_CONFIG[this.gameClass];this.physics.world.setBounds(0,0,4300,900);this.cameras.main.setBounds(0,0,4300,900);
   this.buildWorld();this.player=this.physics.add.sprite(360,620,"hero-"+this.gameClass+"-idle").setDisplaySize(80,112).setCollideWorldBounds(true);this.player.setDepth(5);
-  this.inventory=new InventorySystem(this.gameClass);if(this.scene.settings.data?.load){Object.assign(this.inventory.state,this.scene.settings.data.load.inventory);this.progression.state.level=this.scene.settings.data.load.level;this.progression.state.xp=this.scene.settings.data.load.experience;this.currentRegion=REGIONS.find(r=>r.id===this.scene.settings.data.load.areaId)??REGIONS[0];}this.combat=new CombatSystem(this,this.player,this.gameClass,this.inventory);this.hud=new HUD(this,this.inputMode,this.gameClass);
+  this.inventory=new InventorySystem(this.gameClass);if(this.loadedSave){Object.assign(this.inventory.state,this.loadedSave.inventory);this.progression.state.level=this.loadedSave.level;this.progression.state.xp=this.loadedSave.experience;this.currentRegion=REGIONS.find(r=>r.id===this.loadedSave!.areaId)??REGIONS[0];}this.combat=new CombatSystem(this,this.player,this.gameClass,this.inventory);this.hud=new HUD(this,this.inputMode,this.gameClass);
   this.inventoryPanel=new InventoryPanel(this,this.inventory);
   this.cursors=this.input.keyboard!.createCursorKeys();this.keys=this.input.keyboard!.addKeys("W,A,S,D,J,K,ONE,TWO,THREE,I,M,F5") as Record<string,Phaser.Input.Keyboard.Key>;
   this.input.keyboard!.on("keydown-I",()=>this.inventoryPanel.toggle());
