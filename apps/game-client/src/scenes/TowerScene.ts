@@ -52,6 +52,8 @@ export class TowerScene extends Phaser.Scene {
     this.keyLeft=this.input.keyboard?.addKey("A");
     this.keyRight=this.input.keyboard?.addKey("D");
 
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.input.keyboard?.removeAllListeners(); this.enemy?.destroy(); this.enemy=undefined; });
+
     this.add.text(this.scale.width / 2, 670, "A/D ou ←/→ mover • J atacar • K dash • ESPAÇO próximo andar", {
       fontFamily: "Arial", fontSize: "13px", color: "#aeb5c7",
     }).setOrigin(0.5);
