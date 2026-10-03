@@ -34,7 +34,7 @@ export class BossRushScene extends Phaser.Scene {
       fontFamily: "Arial", fontSize: "14px", color: "#aeb5c7",
     }).setOrigin(0.5);
 
-    this.status = this.add.text(this.scale.width / 2, 130, "Conectando ao servidor...", {
+    this.status = this.add.text(this.scale.width / 2, 130, "Conectando • " + this.difficulty.toUpperCase() + "...", {
       fontFamily: "Arial", fontSize: "17px", color: "#d9c7ff", align: "center",
     }).setOrigin(0.5);
     this.label = this.add.text(this.scale.width / 2, 175, "", {
