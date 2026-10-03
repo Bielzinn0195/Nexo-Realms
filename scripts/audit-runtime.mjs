@@ -6,6 +6,7 @@ const checks=[
  ["arena-client-room",read("apps/game-client/src/scenes/ArenaScene.ts"),["arena-ranked","arena-casual"]],
  ["arena-server-room",read("apps/multiplayer-server/src/index.ts"),["arena-ranked","arena-casual"]],
  ["boss-rush-auth",read("apps/game-client/src/scenes/BossRushScene.ts"),["client.auth.token","joinOrCreate"]],
+ ["arena-auth",read("apps/game-client/src/scenes/ArenaScene.ts"),["client.auth.token","arena-ranked","arena-casual"]],
  ["shared-classes",read("packages/shared/src/index.ts"),["cavaleiro","arqueiro","mago"]],
  ["world-areas",read("apps/game-client/src/data/world.ts"),["forest-of-beginnings","central-city","forgotten-mines","drowned-swamp","ancient-ruins","final-fortress"]],
 ];
