@@ -126,6 +126,7 @@ export class ArenaScene extends Phaser.Scene {
         localStorage.setItem("nexo-arena-rating", String(this.rating));
         this.status?.setText((won ? "VITÓRIA" : "DERROTA") + " • " + message.reason + "\nRating: " + this.rating + " • " + getTier(this.rating).name);
         this.connected = false;
+        this.queueing = false;
       });
       this.room.onLeave(() => {
         this.connected = false;
