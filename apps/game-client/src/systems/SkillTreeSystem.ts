@@ -59,7 +59,7 @@ export class SkillTreeSystem {
     this.nodes.forEach((node) => {
       node.level = Math.max(0, Math.min(node.maxLevel, Math.floor(levels?.[node.id] ?? 0)));
     });
-    this.points = Math.max(0, Math.floor(points));
+    this.points = Math.max(0, Math.min(999, Math.floor(points)));
   }
 
   exportLevels() {
