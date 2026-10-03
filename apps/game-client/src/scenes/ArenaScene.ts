@@ -121,8 +121,7 @@ export class ArenaScene extends Phaser.Scene {
         const won = message.winnerId === this.room.sessionId;
         this.rating = applyArenaResult(this.rating, won, 1000);
         localStorage.setItem("nexo-arena-rating", String(this.rating));
-        this.status?.setText((won ? "VITÓRIA" : "DERROTA") + " • " + message.reason + "
-Rating: " + this.rating + " • " + getTier(this.rating).name);
+        this.status?.setText((won ? "VITÓRIA" : "DERROTA") + " • " + message.reason + "\nRating: " + this.rating + " • " + getTier(this.rating).name);
         this.connected = false;
       });
       this.room.onLeave(() => {
