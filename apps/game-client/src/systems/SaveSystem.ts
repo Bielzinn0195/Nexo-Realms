@@ -51,7 +51,7 @@ export class SaveSystem {
         experience: Math.max(0, parsed.experience ?? 0),
         skillPoints: Math.max(0, parsed.skillPoints ?? 0),
         gold: Math.max(0, parsed.gold ?? parsed.inventory.gold ?? 0),
-        inventory: parsed.inventory,
+        inventory: { ...parsed.inventory, capacity: Math.max(1, Math.min(200, Number(parsed.inventory.capacity ?? 36))), gold: Math.max(0, Number(parsed.inventory.gold ?? 0)), gems: Math.max(0, Number(parsed.inventory.gems ?? 0)) },
         areaId: parsed.areaId ?? "forest-of-beginnings",
         checkpointId: parsed.checkpointId ?? "forest-gate",
         defeatedBosses: parsed.defeatedBosses ?? [],
