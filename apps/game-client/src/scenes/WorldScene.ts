@@ -303,7 +303,8 @@ export class WorldScene extends Phaser.Scene {
     this.enemies = this.enemies.filter((enemy) => {
       if (!enemy.isDead()) return true;
       enemy.destroy();
-      this.inventory.gainEquipmentExperience(25 + enemy.definition.xp);\n      this.inventory.addItem(Math.random() > 0.65 ? "health-potion" : Math.random() > 0.7 ? "arcane-ring" : this.gameClass === "arqueiro" ? "hunter-bow" : this.gameClass === "mago" ? "apprentice-staff" : "iron-longblade");
+      this.inventory.gainEquipmentExperience(25 + enemy.definition.xp);
+      this.inventory.addItem(Math.random() > 0.65 ? "health-potion" : Math.random() > 0.7 ? "arcane-ring" : this.gameClass === "arqueiro" ? "hunter-bow" : this.gameClass === "mago" ? "apprentice-staff" : "iron-longblade");
       this.inventory.state.gold += enemy.definition.gold;
       const levels = this.progression.addXp(enemy.definition.xp);
       if (levels > 0) {
