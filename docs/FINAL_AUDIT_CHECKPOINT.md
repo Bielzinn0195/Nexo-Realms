@@ -139,3 +139,11 @@ These are production-hardening/integration tasks, not hidden mocks.
 The main NEXO repository was not modified.
 
 NEXO REALMS remains independently testable and can be integrated only after the standalone release gate is approved.
+
+
+## Follow-up hardening pass
+
+- Arena client routes to `arena-ranked` / `arena-casual` and passes the current Supabase access token.
+- Boss Rush passes the current Supabase access token and exposes difficulty/phase state.
+- Competitive database writes are prepared for server-only authority in migration 003.
+- CI now runs `audit:runtime` in addition to data validation, typecheck, build and server smoke.
