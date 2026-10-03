@@ -55,9 +55,7 @@ export class BossRushScene extends Phaser.Scene {
     const elapsed = this.online && this.room?.state?.elapsed ? this.room.state.elapsed : this.time.now - this.startedAt;
     const currentBoss = BOSSES[this.index];
     if (currentBoss && this.label) {
-      this.label.setText(currentBoss.name + "
-HP " + Math.max(0, this.hp) + "/" + currentBoss.hp + "
-Tempo " + Math.floor(elapsed / 1000) + "s • Score " + this.score);
+      this.label.setText(currentBoss.name + "\nHP " + Math.max(0, this.hp) + "/" + currentBoss.hp + "\nTempo " + Math.floor(elapsed / 1000) + "s • Score " + this.score);
     }
   }
 
