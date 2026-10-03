@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { Client } from "colyseus.js";
 import type { GameClass } from "@nexo-realms/shared";
 import { applyArenaResult, getTier } from "../systems/RankSystem";
+import { AuthService } from "../systems/AuthService";
 
 interface RemotePlayer {
   class: GameClass;
