@@ -108,7 +108,8 @@ export class ArenaScene extends Phaser.Scene {
     try {
       const endpoint = (import.meta.env.VITE_MULTIPLAYER_URL as string | undefined) ?? "http://localhost:2567";
       const client = new Client(endpoint);
-      this.room = await client.joinOrCreate("arena", { gameClass: this.gameClass, rating: this.rating });
+      const roomName = this.queueType === "casual" ? "arena-casual" : "arena-ranked";
+      this.room = await client.joinOrCreate(roomName, { gameClass: this.gameClass });
       this.connected = true;
       this.queueing = false;
       this.status?.setText("Sala encontrada • aguardando oponente...");
