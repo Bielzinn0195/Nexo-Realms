@@ -13,6 +13,9 @@ export class TowerScene extends Phaser.Scene {
   private hpLabel?: Phaser.GameObjects.Text;
   private className: GameClass = "cavaleiro";
   private attackAt = 0;
+  private dashAt = 0;
+  private keyLeft?: Phaser.Input.Keyboard.Key;
+  private keyRight?: Phaser.Input.Keyboard.Key;
 
   constructor() {
     super("TowerScene");
@@ -41,10 +44,13 @@ export class TowerScene extends Phaser.Scene {
 
     this.input.keyboard?.on("keydown-J", () => this.attack());
     this.input.keyboard?.on("keydown-K", () => {
-      this.player.setVelocityX(this.player.flipX ? -380 : 380);
+      if(this.time.now>=this.dashAt){this.dashAt=this.time.now+850;this.player.setVelocityX(this.player.flipX?-380:380);}
     });
     this.input.keyboard?.on("keydown-SPACE", () => this.nextFloor());
     this.input.keyboard?.on("keydown-ESC", () => this.scene.start("WorldScene", { gameClass: data.gameClass }));
+
+    this.keyLeft=this.input.keyboard?.addKey("A");
+    this.keyRight=this.input.keyboard?.addKey("D");
 
     this.add.text(this.scale.width / 2, 670, "A/D ou ←/→ mover • J atacar • K dash • ESPAÇO próximo andar", {
       fontFamily: "Arial", fontSize: "13px", color: "#aeb5c7",
@@ -54,8 +60,8 @@ export class TowerScene extends Phaser.Scene {
   update(time: number) {
     if (!this.player || !this.enemy) return;
 
-    const left = this.input.keyboard?.addKey("A").isDown || this.input.keyboard?.addKey("LEFT").isDown;
-    const right = this.input.keyboard?.addKey("D").isDown || this.input.keyboard?.addKey("RIGHT").isDown;
+    const left = this.keyLeft?.isDown || false;
+    const right = this.keyRight?.isDown || false;
     if (left) {
       this.player.setVelocityX(-190);
       this.player.setFlipX(true);
