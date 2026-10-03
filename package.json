@@ -1,0 +1,16 @@
+{
+  "name": "nexo-realms",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Standalone NEXO REALMS action RPG",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "npm run dev -w @nexo-realms/game-client",
+    "dev:server": "npm run dev -w @nexo-realms/multiplayer-server",
+    "build": "npm run build -ws",
+    "typecheck": "npm run typecheck -ws",
+    "test": "npm run test -ws",
+    "lint": "npm run lint -ws"
+  },
+  "engines": { "node": ">=20" }
+}
