@@ -17,7 +17,7 @@ export class WorldScene extends Phaser.Scene {
  private gameClass:GameClass="cavaleiro"; private inputMode:InputMode="keyboard"; private player!:Phaser.Physics.Arcade.Sprite; private floor?:Phaser.Physics.Arcade.Image;
  private combat!:CombatSystem; private inventory!:InventorySystem; private hud!:HUD; private inventoryPanel!:InventoryPanel; private progression=new ProgressionSystem(); private quests=new QuestSystem(); private saves=new SaveSystem();
  private enemies:EnemyActor[]=[]; private currentRegion=REGIONS[0]; private regionLabel?:Phaser.GameObjects.Text; private boss?:Phaser.GameObjects.Rectangle; private bossHp=0; private bossMax=0; private bossPhase=0; private lastBossHit=0; private saveTimer=0; private saveSlot:1|2|3=1; private playerHp=0; private playerResource=0; private loadedSave?:ReturnType<SaveSystem["load"]>;
- private keys!:Record<string,Phaser.Input.Keyboard.Key>; private cursors!:Phaser.Types.Input.Keyboard.CursorKeys;
+ private touchDirection=0; private keys!:Record<string,Phaser.Input.Keyboard.Key>; private cursors!:Phaser.Types.Input.Keyboard.CursorKeys;
 
  constructor(){super("WorldScene");}
  init(data:{gameClass?:GameClass;slot?:1|2|3;load?:ReturnType<SaveSystem["load"]>}){this.gameClass=data.gameClass??data.load?.gameClass??"cavaleiro";this.saveSlot=data.slot??data.load?.slot??1;this.loadedSave=data.load;this.inputMode=(navigator.getGamepads?.().some(Boolean)?"controller":navigator.maxTouchPoints>0&&window.matchMedia("(pointer:coarse)").matches?"touch":"keyboard");}
@@ -32,13 +32,13 @@ export class WorldScene extends Phaser.Scene {
   this.input.keyboard!.on("keydown-ONE",()=>this.skill(0));this.input.keyboard!.on("keydown-TWO",()=>this.skill(1));this.input.keyboard!.on("keydown-THREE",()=>this.skill(2));
   this.input.keyboard!.on("keydown-M",()=>this.scene.launch("ModeMenuScene",{gameClass:this.gameClass}));
   this.input.keyboard!.on("keydown-F5",()=>this.saveGame());
-  this.hud.setActions(()=>this.attack(),()=>this.dash(),i=>this.skill(i),()=>this.inventoryPanel.toggle());
+  this.hud.setActions(()=>this.attack(),()=>this.dash(),i=>this.skill(i),()=>this.inventoryPanel.toggle());this.input.on("pointerdown",(p:Phaser.Input.Pointer)=>{if(this.inputMode==="touch"&&p.x<this.scale.width*.42)this.touchDirection=p.x<this.scale.width*.2?-1:1;});this.input.on("pointermove",(p:Phaser.Input.Pointer)=>{if(this.inputMode==="touch"&&p.isDown&&p.x<this.scale.width*.42)this.touchDirection=p.x<this.scale.width*.2?-1:1;});this.input.on("pointerup",()=>{this.touchDirection=0;});
   this.cameras.main.startFollow(this.player,true,.08,.08);this.playerHp=this.inventory.getStats(this.progression.state.level).hp;this.playerResource=this.inventory.getStats(this.progression.state.level).resource;this.hud.update(this.playerHp,this.inventory.getStats(this.progression.state.level).hp,this.playerResource,this.inventory.getStats(this.progression.state.level).resource);
   this.spawnWave(0);this.showRegion(this.currentRegion);this.showGuide();
  }
  update(time:number){
   if(!this.player||this.combat.state==="dead")return;
-  const stats=this.inventory.getStats(this.progression.state.level);const left=this.cursors.left.isDown||this.keys.A.isDown;const right=this.cursors.right.isDown||this.keys.D.isDown;
+  const stats=this.inventory.getStats(this.progression.state.level);const left=this.touchDirection<0||this.cursors.left.isDown||this.keys.A.isDown;const right=this.touchDirection>0||this.cursors.right.isDown||this.keys.D.isDown;
   if(left){this.player.setVelocityX(-stats.moveSpeed);this.player.setFlipX(true);}else if(right){this.player.setVelocityX(stats.moveSpeed);this.player.setFlipX(false);}else if(this.combat.state!=="dash"){this.player.setVelocityX((this.player.body as Phaser.Physics.Arcade.Body).velocity.x*.82);}
   if((this.cursors.up.isDown||this.keys.W.isDown)&&(this.player.body as Phaser.Physics.Arcade.Body).blocked.down)this.player.setVelocityY(-470);
   this.player.setTexture("hero-"+this.gameClass+"-"+(this.combat.state==="attack"?"attack-1":this.combat.state==="skill"?"skill-1":this.combat.state==="dash"?"dash":this.combat.state==="hurt"?"hurt":"idle"));
