@@ -18,4 +18,4 @@ for (const [file, tokens] of required) {
     if (!content.includes(token)) throw new Error(file + " is missing " + token);
   }
 }
-const modes=read("apps/game-client/src/data/modes.ts");\nfor(const token of ["campaign","tower","boss-rush","arena"]) if(!modes.includes(token)) throw new Error("Missing game mode: "+token);\nconsole.log("NEXO REALMS data validation passed.");
+const modes=read("apps/game-client/src/data/modes.ts");\nfor(const token of ["campaign","tower","boss-rush","arena"]) if(!modes.includes(token)) throw new Error("Missing game mode: "+token);\nconst shared=read("packages/shared/src/index.ts");\nfor(const token of ["cavaleiro","arqueiro","mago"]) if(!shared.includes(token)) throw new Error("Missing class: "+token);\nconsole.log("NEXO REALMS data validation passed.");
