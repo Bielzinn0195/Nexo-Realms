@@ -34,6 +34,7 @@ export class WorldScene extends Phaser.Scene {
   private currentRegion = REGIONS[0];
   private regionLabel?: Phaser.GameObjects.Text;
   private boss?: Phaser.GameObjects.Rectangle;
+  private bossNameLabel?: Phaser.GameObjects.Text;
   private bossBar?: Phaser.GameObjects.Graphics;
   private bossHp = 0;
   private bossMax = 0;
@@ -77,6 +78,7 @@ export class WorldScene extends Phaser.Scene {
       .setDisplaySize(80, 112)
       .setCollideWorldBounds(true)
       .setDepth(5);
+    if (this.floor) this.physics.add.collider(this.player, this.floor);
 
     this.inventory = new InventorySystem(this.gameClass);
     if (this.loadedSave) {
@@ -126,6 +128,7 @@ export class WorldScene extends Phaser.Scene {
     this.spawnWave(0);
     this.showRegion(this.currentRegion);
     this.showGuide();
+    this.spawnBossForRegion(this.currentRegion.id);
   }
 
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -285,8 +288,14 @@ export class WorldScene extends Phaser.Scene {
       this.currentRegion = next;
       this.showRegion(next);
       this.quests.progress("pathfinder");
-      if (next.id === "final-fortress") this.spawnBoss(2);
+      this.spawnBossForRegion(next.id);
     }
+  }
+
+  private spawnBossForRegion(regionId: string) {
+    const index = regionId === "central-city" ? 0 : regionId === "forgotten-mines" ? 1 : regionId === "final-fortress" ? 2 : -1;
+    if (index < 0 || this.boss || this.defeatedBosses.includes(BOSSES[index].id)) return;
+    this.spawnBoss(index);
   }
 
   private spawnWave(offset: number) {
@@ -333,9 +342,10 @@ export class WorldScene extends Phaser.Scene {
     this.bossMax = definition.hp;
     this.bossHp = definition.hp;
     this.bossPhase = 0;
-    this.boss = this.add.rectangle(Math.min(this.player.x + 520, 4100), 520, 150, 210, 0x4d2b5d)
+    this.boss = this.add.rectangle(Math.min(this.player.x + 520, 4100), 620, 150, 210, 0x4d2b5d)
       .setStrokeStyle(4, 0xc58cff)
       .setDepth(4);
+    this.bossNameLabel = this.add.text(this.boss.x, this.boss.y - 145, definition.name, { fontFamily: "Arial", fontSize: "18px", color: "#fff", fontStyle: "bold" }).setOrigin(.5).setDepth(8);
     this.bossBar = this.add.graphics().setScrollFactor(0).setDepth(9);
     this.add.text(this.boss.x, this.boss.y - 150, definition.name, { fontFamily: "Arial", fontSize: "22px", color: "#fff", fontStyle: "bold" }).setOrigin(0.5).setDepth(8);
     this.showBanner("BOSS: " + definition.title);
@@ -355,7 +365,8 @@ export class WorldScene extends Phaser.Scene {
     const phaseData = definition.phases[this.bossPhase];
     const bossSpeed = 45 * phaseData.speedMultiplier;
     const direction = Math.sign(this.player.x - this.boss.x);
-    this.boss.x = Phaser.Math.Clamp(this.boss.x + direction * bossSpeed * (this.game.loop.delta / 1000), definition.arenaWidth > 0 ? Math.max(100, this.player.x - definition.arenaWidth / 2) : 100, 4200);
+    this.boss.x = Phaser.Math.Clamp(this.boss.x + direction * bossSpeed * (this.game.loop.delta / 1000), Math.max(100, this.player.x - definition.arenaWidth / 2), Math.min(4200, this.player.x + definition.arenaWidth / 2));
+    this.bossNameLabel?.setPosition(this.boss.x, this.boss.y - 145);
     if (Math.abs(this.player.x - this.boss.x) < 170 && this.time.now - this.lastDamageAt > 1100) {
       const damage = Math.round(definition.damage * phaseData.damageMultiplier);
       this.playerHp = Math.max(1, this.playerHp - Math.max(1, Math.round(damage * (100 / (100 + this.getPlayerStats().defense)))));
@@ -379,6 +390,8 @@ export class WorldScene extends Phaser.Scene {
     this.showBanner("BOSS DERROTADO • " + definition.name);
     this.boss.destroy();
     this.boss = undefined;
+    this.bossNameLabel?.destroy();
+    this.bossNameLabel = undefined;
     this.bossBar?.destroy();
     this.bossBar = undefined;
     this.bossHp = 0;
@@ -401,6 +414,7 @@ export class WorldScene extends Phaser.Scene {
     });
     graphics.fillStyle(0x141a20).fillRect(0, 730, 4300, 170);
     this.floor = this.physics.add.staticImage(2150, 730, "floor").setDisplaySize(4300, 340).setVisible(false);
+    this.floor.body.setSize(4300, 340, true);
     this.add.text(430, 570, "Siga a estrada. O reino começa aqui.", { fontFamily: "Arial", fontSize: "20px", color: "#d3dccf" });
     [900, 1500, 2200, 2900, 3500].forEach((x) => this.add.rectangle(x, 575, 8, 310, 0x8c6b40, 0.6));
   }
