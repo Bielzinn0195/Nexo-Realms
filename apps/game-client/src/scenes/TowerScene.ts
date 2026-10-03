@@ -63,7 +63,7 @@ export class TowerScene extends Phaser.Scene {
       this.player.setVelocityX(190);
       this.player.setFlipX(false);
     } else {
-      this.player.setVelocityX(this.player.body.velocity.x * 0.8);
+      this.player.setVelocityX((this.player.body?.velocity.x ?? 0) * 0.8);
     }
 
     this.enemy.update(this.player, time);
