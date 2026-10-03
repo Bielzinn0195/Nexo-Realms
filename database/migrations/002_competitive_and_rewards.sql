@@ -101,9 +101,7 @@ alter table public.rewards enable row level security;
 alter table public.reward_claims enable row level security;
 
 create policy "arena seasons are public" on public.arena_seasons for select using (true);
-create policy "arena matches are public metadata" on public.arena_matches for select using (true);
 create policy "boss rush seasons are public" on public.boss_rush_seasons for select using (true);
-create policy "boss rush runs are public validated" on public.boss_rush_runs for select using (validation_status = 'validated' or auth.uid() = user_id);
 create policy "leaderboards are public" on public.leaderboards for select using (true);
 create policy "rewards are public" on public.rewards for select using (true);
 create policy "own reward claims are readable" on public.reward_claims for select using (auth.uid() = user_id);
