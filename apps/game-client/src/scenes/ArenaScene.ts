@@ -28,6 +28,8 @@ export class ArenaScene extends Phaser.Scene {
   private labels = new Map<string, Phaser.GameObjects.Text>();
   private inputPrevious: boolean[] = [];
   private touchButtons: Phaser.GameObjects.GameObject[] = [];
+  private keyLeft?: Phaser.Input.Keyboard.Key;
+  private keyRight?: Phaser.Input.Keyboard.Key;
 
   constructor() {
     super("ArenaScene");
