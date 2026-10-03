@@ -12,10 +12,12 @@ import {EnemyActor,ENEMY_DEFINITIONS} from "../systems/EnemySystem";
 import {ProgressionSystem} from "../systems/ProgressionSystem";
 import {QuestSystem} from "../systems/QuestSystem";
 import {SaveSystem} from "../systems/SaveSystem";
+import {SkillTreeSystem} from "../systems/SkillTreeSystem";
+import {SkillTreePanel} from "../ui/SkillTreePanel";
 
 export class WorldScene extends Phaser.Scene {
  private gameClass:GameClass="cavaleiro"; private inputMode:InputMode="keyboard"; private player!:Phaser.Physics.Arcade.Sprite; private floor?:Phaser.Physics.Arcade.Image;
- private combat!:CombatSystem; private inventory!:InventorySystem; private hud!:HUD; private inventoryPanel!:InventoryPanel; private progression=new ProgressionSystem(); private quests=new QuestSystem(); private saves=new SaveSystem();
+ private combat!:CombatSystem; private inventory!:InventorySystem; private skillTree!:SkillTreeSystem; private skillTreePanel!:SkillTreePanel; private hud!:HUD; private inventoryPanel!:InventoryPanel; private progression=new ProgressionSystem(); private quests=new QuestSystem(); private saves=new SaveSystem();
  private enemies:EnemyActor[]=[]; private currentRegion=REGIONS[0]; private regionLabel?:Phaser.GameObjects.Text; private boss?:Phaser.GameObjects.Rectangle; private bossHp=0; private bossMax=0; private bossPhase=0; private lastBossHit=0; private saveTimer=0; private saveSlot:1|2|3=1; private playerHp=0; private playerResource=0; private loadedSave?:ReturnType<SaveSystem["load"]>;
  private touchDirection=0; private keys!:Record<string,Phaser.Input.Keyboard.Key>; private cursors!:Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -25,13 +27,13 @@ export class WorldScene extends Phaser.Scene {
   const cfg=CLASS_CONFIG[this.gameClass];this.playerHp=cfg.baseHp;this.playerResource=cfg.baseResource;this.physics.world.setBounds(0,0,4300,900);this.cameras.main.setBounds(0,0,4300,900);
   this.buildWorld();this.player=this.physics.add.sprite(360,620,"hero-"+this.gameClass+"-idle").setDisplaySize(80,112).setCollideWorldBounds(true);this.player.setDepth(5);
   this.inventory=new InventorySystem(this.gameClass);if(this.loadedSave){Object.assign(this.inventory.state,this.loadedSave.inventory);this.progression.state.level=this.loadedSave.level;this.progression.state.xp=this.loadedSave.experience;this.currentRegion=REGIONS.find(r=>r.id===this.loadedSave!.areaId)??REGIONS[0];}this.combat=new CombatSystem(this,this.player,this.gameClass,this.inventory);this.hud=new HUD(this,this.inputMode,this.gameClass);
-  this.inventoryPanel=new InventoryPanel(this,this.inventory);
+  this.inventoryPanel=new InventoryPanel(this,this.inventory);this.skillTree=new SkillTreeSystem(this.gameClass);this.skillTree.points=this.progression.state.skillPoints;this.skillTreePanel=new SkillTreePanel(this,this.skillTree);
   this.cursors=this.input.keyboard!.createCursorKeys();this.keys=this.input.keyboard!.addKeys("W,A,S,D,J,K,ONE,TWO,THREE,I,M,F5") as Record<string,Phaser.Input.Keyboard.Key>;
   this.input.keyboard!.on("keydown-I",()=>this.inventoryPanel.toggle());
   this.input.keyboard!.on("keydown-J",()=>this.attack());this.input.keyboard!.on("keydown-K",()=>this.dash());
   this.input.keyboard!.on("keydown-ONE",()=>this.skill(0));this.input.keyboard!.on("keydown-TWO",()=>this.skill(1));this.input.keyboard!.on("keydown-THREE",()=>this.skill(2));
   this.input.keyboard!.on("keydown-M",()=>this.scene.launch("ModeMenuScene",{gameClass:this.gameClass}));
-  this.input.keyboard!.on("keydown-F5",()=>this.saveGame());
+  this.input.keyboard!.on("keydown-F5",()=>this.saveGame());this.input.keyboard!.on("keydown-T",()=>this.skillTreePanel.toggle());
   this.hud.setActions(()=>this.attack(),()=>this.dash(),i=>this.skill(i),()=>this.inventoryPanel.toggle());this.input.on("pointerdown",(p:Phaser.Input.Pointer)=>{if(this.inputMode==="touch"&&p.x<this.scale.width*.42)this.touchDirection=p.x<this.scale.width*.2?-1:1;});this.input.on("pointermove",(p:Phaser.Input.Pointer)=>{if(this.inputMode==="touch"&&p.isDown&&p.x<this.scale.width*.42)this.touchDirection=p.x<this.scale.width*.2?-1:1;});this.input.on("pointerup",()=>{this.touchDirection=0;});
   this.cameras.main.startFollow(this.player,true,.08,.08);this.playerHp=this.inventory.getStats(this.progression.state.level).hp;this.playerResource=this.inventory.getStats(this.progression.state.level).resource;this.hud.update(this.playerHp,this.inventory.getStats(this.progression.state.level).hp,this.playerResource,this.inventory.getStats(this.progression.state.level).resource);
   this.spawnWave(0);this.showRegion(this.currentRegion);this.showGuide();
