@@ -31,7 +31,7 @@ const DEFAULT_QUESTS: QuestSave[] = [
 export class SaveSystem {
   save(slot: 1 | 2 | 3, data: Omit<RuntimeSave, "slot" | "updatedAt" | "version">) {
     const value: RuntimeSave = { ...data, slot, version: CURRENT_VERSION, updatedAt: new Date().toISOString() };
-    localStorage.setItem(key(slot), JSON.stringify(value));
+    try { localStorage.setItem(key(slot), JSON.stringify(value)); } catch { throw new Error("Não foi possível salvar: armazenamento local indisponível ou cheio."); }
     return value;
   }
 
