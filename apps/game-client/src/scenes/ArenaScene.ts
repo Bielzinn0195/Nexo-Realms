@@ -128,10 +128,10 @@ export class ArenaScene extends Phaser.Scene {
         const label = this.labels.get(message.targetId);
         if (label) label.setText("-" + message.damage);
       });
-      this.room.onMessage("match-end", (message: { winnerId: string; reason: string }) => {
+      this.room.onMessage("match-end", (message: { winnerId: string; reason: string; rating?: number }) => {
         const won = message.winnerId === this.room.sessionId;
-        if (typeof (message as {rating?:number}).rating === "number" && this.queueType === "ranked") {
-          this.rating = Math.max(0, Math.min(5000, Math.round((message as {rating:number}).rating)));
+        if (typeof message.rating === "number" && this.queueType === "ranked") {
+          this.rating = Math.max(0, Math.min(5000, Math.round(message.rating)));
           localStorage.setItem("nexo-arena-rating", String(this.rating));
         }
         if (this.queueType === "ranked") {
