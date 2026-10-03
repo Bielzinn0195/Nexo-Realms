@@ -22,12 +22,12 @@ export class HUD {
   const joy=this.scene.add.circle(105,this.scene.scale.height-115,58,0x222838,.72).setStrokeStyle(2,0x66708a).setInteractive();
   joy.on("pointerdown",()=>{});this.touchGroup.add(joy);
   const buttons:[string,number,number,()=>void][]=[
-   ["ATK",this.scene.scale.width-105,this.scene.scale.height-120,this.attackFn],
-   ["DASH",this.scene.scale.width-205,this.scene.scale.height-65,this.dashFn],
+   ["ATK",this.scene.scale.width-105,this.scene.scale.height-120,()=>this.attackFn()],
+   ["DASH",this.scene.scale.width-205,this.scene.scale.height-65,()=>this.dashFn()],
    ["S1",this.scene.scale.width-310,this.scene.scale.height-80,()=>this.skillFn(0)],
    ["S2",this.scene.scale.width-390,this.scene.scale.height-120,()=>this.skillFn(1)],
    ["S3",this.scene.scale.width-300,this.scene.scale.height-190,()=>this.skillFn(2)],
-   ["BAG",this.scene.scale.width-110,this.scene.scale.height-220,this.inventoryFn]
+   ["BAG",this.scene.scale.width-110,this.scene.scale.height-220,()=>this.inventoryFn()]
   ];
   buttons.forEach(([label,x,y,fn])=>{const c=this.scene.add.circle(x,y,34,0x262d40,.9).setStrokeStyle(2,0x69779a).setInteractive();const t=this.scene.add.text(x,y,label,{fontFamily:"Arial",fontSize:"10px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);c.on("pointerdown",fn);t.setInteractive();t.on("pointerdown",fn);this.touchGroup?.add([c,t]);});
  }
