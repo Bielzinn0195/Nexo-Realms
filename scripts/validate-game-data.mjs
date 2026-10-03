@@ -4,7 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const required = [
-  ["packages/shared/src/index.ts", ["cavaleiro", "arqueiro", "mago"]],
+  ["packages/shared/src/index.ts", ["export type GameClass = \"cavaleiro\" | \"arqueiro\" | \"mago\";","experience:number"]],
   ["apps/game-client/src/data/characters.ts", ["cavaleiro:", "arqueiro:", "mago:"]],
   ["apps/game-client/src/data/world.ts", ["forest-of-beginnings", "central-city", "forgotten-mines", "drowned-swamp", "ancient-ruins", "final-fortress"]],
   ["apps/game-client/src/data/modes.ts", ["campaign", "tower", "boss-rush", "arena"]],
