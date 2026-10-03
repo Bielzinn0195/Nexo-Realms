@@ -33,7 +33,7 @@ export class QuestPanel {
       const text = this.scene.add.text(this.scene.scale.width / 2 - width / 2 + 38, y - 35,
         quest.title + " • " + quest.progress + "/" + quest.target + "\n" + quest.description,
         { fontFamily: "Arial", fontSize: "14px", color: "#fff", lineSpacing: 7, wordWrap: { width: width - 230 } });
-      this.container.add([card, text]);
+      this.container!.add([card, text]);
 
       if (quest.completed && !quest.claimed) {
         const button = this.scene.add.rectangle(this.scene.scale.width / 2 + width / 2 - 95, y, 130, 40, 0x2d4774)
@@ -45,9 +45,9 @@ export class QuestPanel {
           this.claim(quest.id);
           this.refresh();
         });
-        this.container.add([button, label]);
+        this.container!.add([button, label]);
       } else {
-        this.container.add(this.scene.add.text(this.scene.scale.width / 2 + width / 2 - 95, y, quest.claimed ? "RESGATADA" : "EM PROGRESSO", {
+        this.container!.add(this.scene.add.text(this.scene.scale.width / 2 + width / 2 - 95, y, quest.claimed ? "RESGATADA" : "EM PROGRESSO", {
           fontFamily: "Arial", fontSize: "10px", color: quest.claimed ? "#7fd19a" : "#8994a9",
         }).setOrigin(0.5));
       }
