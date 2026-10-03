@@ -4,7 +4,7 @@ import { CHARACTERS } from "../data/characters";
 
 export class CharacterSelectScene extends Phaser.Scene {
  constructor(){super("CharacterSelectScene");}
- create(){
+ create(data:{slot?:1|2|3}={}){
   this.cameras.main.setBackgroundColor("#090b10");
   this.add.text(this.scale.width/2,70,"ESCOLHA SEU CAMINHO",{fontFamily:"Arial",fontSize:"34px",color:"#fff",fontStyle:"bold"}).setOrigin(.5);
   (["cavaleiro","arqueiro","mago"] as GameClass[]).forEach((gameClass,index)=>{
@@ -16,7 +16,7 @@ export class CharacterSelectScene extends Phaser.Scene {
    
    this.add.text(x,490,this.description(gameClass),{fontFamily:"Arial",fontSize:"14px",color:"#aeb5c7",align:"center",wordWrap:{width:210}}).setOrigin(.5);
    this.add.text(x,575,"CLIQUE PARA JOGAR",{fontFamily:"Arial",fontSize:"11px",color:"#6d7cff"}).setOrigin(.5);
-   card.on("pointerdown",()=>this.scene.start("WorldScene",{gameClass}));
+   card.on("pointerdown",()=>this.scene.start("WorldScene",{gameClass,slot:data.slot??1}));
    card.on("pointerover",()=>{card.setStrokeStyle(2,0x6d7cff);hero.setScale(1.06);});
    card.on("pointerout",()=>{card.setStrokeStyle(2,0x343b4d);hero.setScale(1);});
   });
