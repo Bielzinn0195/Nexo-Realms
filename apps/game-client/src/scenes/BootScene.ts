@@ -11,6 +11,7 @@ export class BootScene extends Phaser.Scene {
   this.add.text(this.scale.width/2,this.scale.height-50,"Cavaleiro • Arqueiro • Mago • Combate • Inventário",{fontFamily:"Arial",fontSize:"14px",color:"#566075"}).setOrigin(.5);
   this.createTexture("placeholder-player",0x8d6b4f,64,96);
   this.createTexture("placeholder-enemy",0x8f303d,64,90);
+  this.createTexture("floor",0x10161b,64,1);
   this.time.delayedCall(700,()=>this.scene.start("CharacterSelectScene"));
  }
  private createTexture(key:string,color:number,w:number,h:number){
