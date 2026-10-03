@@ -70,6 +70,8 @@ export class ArenaScene extends Phaser.Scene {
       fontFamily: "Arial", fontSize: "11px", color: "#aab2c3",
     }).setOrigin(1, 0);
 
+    this.keyLeft = this.input.keyboard?.addKey("A");
+    this.keyRight = this.input.keyboard?.addKey("D");
     if (navigator.maxTouchPoints > 0) this.createTouchButtons();
 
     this.input.keyboard?.on("keydown-J", () => this.sendAction("attack"));
@@ -83,8 +85,8 @@ export class ArenaScene extends Phaser.Scene {
   update() {
     if (!this.room || !this.connected) return;
 
-    const left = this.input.keyboard?.addKey("A").isDown || this.input.keyboard?.addKey("LEFT").isDown;
-    const right = this.input.keyboard?.addKey("D").isDown || this.input.keyboard?.addKey("RIGHT").isDown;
+    const left = this.keyLeft?.isDown || false;
+    const right = this.keyRight?.isDown || false;
     this.room.send("input", { left: Boolean(left), right: Boolean(right) });
 
     const pad = navigator.getGamepads?.().find((item) => Boolean(item?.connected));
